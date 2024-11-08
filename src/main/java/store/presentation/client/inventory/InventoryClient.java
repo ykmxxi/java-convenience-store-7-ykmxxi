@@ -1,6 +1,5 @@
 package store.presentation.client.inventory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,62 +27,54 @@ public class InventoryClient {
         List<String> productLines = fileInput.readProducts();
         saveColumnIndex(productLines.getFirst());
 
-        List<ProductStorageRequest> productStorageRequests = productStorageRequestFrom(productLines);
+        List<ProductStorageRequest> productStorageRequests = buildProductStorageRequests(productLines);
+        List<ProductStockStorageRequest> productStockStorageRequests = buildProductStockStorageRequests(productLines);
         inventoryService.saveProducts(productStorageRequests);
-
-        List<ProductStockStorageRequest> productStockStorageRequests = productStockStorageRequestFrom(productLines);
-        inventoryService.saveProductStock(productStockStorageRequests);
+        inventoryService.saveProductStocks(productStockStorageRequests);
     }
 
-    private List<ProductStorageRequest> productStorageRequestFrom(final List<String> productLines) {
-        List<ProductStorageRequest> productStorageRequests = new ArrayList<>();
-
-        for (int lineNumber = 1; lineNumber < productLines.size(); lineNumber++) {
-            List<String> productDetails = getProductDetails(productLines.get(lineNumber));
-            productStorageRequests.add(toProductStorageRequest(productDetails));
-        }
-
-        return productStorageRequests;
+    private void saveColumnIndex(final String columnsLine) {
+        List<String> columns = getColumns(columnsLine);
+        IntStream.range(0, columns.size())
+                .forEach(index -> COLUMN_INDEX.put(columns.get(index), index));
     }
 
-    private ProductStorageRequest toProductStorageRequest(final List<String> productDetails) {
+    private List<ProductStorageRequest> buildProductStorageRequests(final List<String> productLines) {
+        return productLines.stream()
+                .skip(1)
+                .map(this::toProductStorageRequest)
+                .toList();
+    }
+
+    private ProductStorageRequest toProductStorageRequest(final String productLine) {
+        List<String> productDetails = getColumns(productLine);
         return new ProductStorageRequest(
                 productDetails.get(COLUMN_INDEX.get("name")),
                 Long.parseLong(productDetails.get(COLUMN_INDEX.get("price")))
         );
     }
 
-    private List<ProductStockStorageRequest> productStockStorageRequestFrom(final List<String> productLines) {
-        List<ProductStockStorageRequest> productStockStorageRequests = new ArrayList<>();
-
-        for (int lineNumber = 1; lineNumber < productLines.size(); lineNumber++) {
-            List<String> productDetails = getProductDetails(productLines.get(lineNumber));
-            productStockStorageRequests.add(toProductStockStorageRequest(productDetails));
-        }
-
-        return productStockStorageRequests;
+    private List<ProductStockStorageRequest> buildProductStockStorageRequests(final List<String> productLines) {
+        return productLines.stream()
+                .skip(1)
+                .map(this::toProductStockStorageRequest)
+                .toList();
     }
 
-    private ProductStockStorageRequest toProductStockStorageRequest(final List<String> productDetails) {
+    private ProductStockStorageRequest toProductStockStorageRequest(final String productLine) {
+        List<String> productDetails = getColumns(productLine);
         return new ProductStockStorageRequest(
                 productDetails.get(COLUMN_INDEX.get("name")),
                 Integer.parseInt(productDetails.get(COLUMN_INDEX.get("quantity"))),
-                Integer.parseInt(productDetails.get(COLUMN_INDEX.get("promotion"))
-                ));
+                Integer.parseInt(productDetails.get(COLUMN_INDEX.get("promotion")))
+        );
     }
 
-    private List<String> getProductDetails(final String productLine) {
+    private List<String> getColumns(final String productLine) {
         List<String> productDetails = Arrays.stream(productLine.split(","))
                 .toList();
         validateColumnCount(productDetails.size());
         return productDetails;
-    }
-
-    private void saveColumnIndex(final String columns) {
-        List<String> split = Arrays.stream(columns.split(","))
-                .toList();
-        IntStream.range(0, split.size())
-                .forEach(index -> COLUMN_INDEX.put(split.get(index), index));
     }
 
     private void validateColumnCount(final int productDetailsCount) {

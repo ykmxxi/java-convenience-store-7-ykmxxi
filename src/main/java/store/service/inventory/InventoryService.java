@@ -36,7 +36,7 @@ public class InventoryService {
                 .toList();
     }
 
-    public void saveProductStock(final List<ProductStockStorageRequest> productStockStorageRequests) {
+    public void saveProductStocks(final List<ProductStockStorageRequest> productStockStorageRequests) {
         productStockRepository.saveAll(toProductStocks(productStockStorageRequests));
     }
 
