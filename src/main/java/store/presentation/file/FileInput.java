@@ -14,14 +14,14 @@ public class FileInput {
     private static final String ROOT_PATH = "src/main/resources/";
     private static final String PROPERTY_FILE = "application.properties";
     private static final String PRODUCT_FILE = "product.file";
+    private static final String PROMOTION_FILE = "promotion.file";
 
-    public List<String> readProductFileLines() {
-        String productFileName = getFilePath(PRODUCT_FILE);
-        try (Stream<String> lines = Files.lines(Paths.get(productFileName), StandardCharsets.UTF_8)) {
-            return lines.toList();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public List<String> readProducts() {
+        return readFileLines(getFilePath(PRODUCT_FILE));
+    }
+
+    public List<String> readPromotions() {
+        return readFileLines(getFilePath(PROMOTION_FILE));
     }
 
     private String getFilePath(final String propertyKey) {
@@ -29,6 +29,14 @@ public class FileInput {
         try (FileInputStream fileInputStream = new FileInputStream(ROOT_PATH + PROPERTY_FILE)) {
             properties.load(fileInputStream);
             return ROOT_PATH + properties.get(propertyKey);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<String> readFileLines(final String promotionFilePath) {
+        try (Stream<String> lines = Files.lines(Paths.get(promotionFilePath), StandardCharsets.UTF_8)) {
+            return lines.toList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
