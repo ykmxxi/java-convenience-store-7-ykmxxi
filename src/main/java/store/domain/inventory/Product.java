@@ -16,8 +16,8 @@ public class Product {
         return new Product(Name.from(nameValue), Price.from(priceValue));
     }
 
-    public String name() {
-        return name.value();
+    public Name name() {
+        return name;
     }
 
     public long price() {
