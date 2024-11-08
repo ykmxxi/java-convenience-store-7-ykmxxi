@@ -15,7 +15,7 @@ class ProductTest {
     void 상품_입고_성공() {
         Product product = Product.storage("콜라", 1_000L);
 
-        assertThat(product.name()).isEqualTo("콜라");
+        assertThat(product.name()).isEqualTo(Name.from("콜라"));
         assertThat(product.price()).isEqualTo(1_000L);
     }
 

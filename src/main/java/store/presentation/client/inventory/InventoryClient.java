@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
 import store.presentation.file.FileInput;
 import store.service.inventory.InventoryService;
@@ -27,11 +28,14 @@ public class InventoryClient {
         List<String> productLines = fileInput.readProducts();
         saveColumnIndex(productLines.getFirst());
 
-        List<ProductStorageRequest> productStorageRequests = createRequest(productLines);
+        List<ProductStorageRequest> productStorageRequests = productStorageRequestFrom(productLines);
         inventoryService.saveProducts(productStorageRequests);
+
+        List<ProductStockStorageRequest> productStockStorageRequests = productStockStorageRequestFrom(productLines);
+        inventoryService.saveProductStock(productStockStorageRequests);
     }
 
-    private List<ProductStorageRequest> createRequest(final List<String> productLines) {
+    private List<ProductStorageRequest> productStorageRequestFrom(final List<String> productLines) {
         List<ProductStorageRequest> productStorageRequests = new ArrayList<>();
 
         for (int lineNumber = 1; lineNumber < productLines.size(); lineNumber++) {
@@ -47,6 +51,25 @@ public class InventoryClient {
                 productDetails.get(COLUMN_INDEX.get("name")),
                 Long.parseLong(productDetails.get(COLUMN_INDEX.get("price")))
         );
+    }
+
+    private List<ProductStockStorageRequest> productStockStorageRequestFrom(final List<String> productLines) {
+        List<ProductStockStorageRequest> productStockStorageRequests = new ArrayList<>();
+
+        for (int lineNumber = 1; lineNumber < productLines.size(); lineNumber++) {
+            List<String> productDetails = getProductDetails(productLines.get(lineNumber));
+            productStockStorageRequests.add(toProductStockStorageRequest(productDetails));
+        }
+
+        return productStockStorageRequests;
+    }
+
+    private ProductStockStorageRequest toProductStockStorageRequest(final List<String> productDetails) {
+        return new ProductStockStorageRequest(
+                productDetails.get(COLUMN_INDEX.get("name")),
+                Integer.parseInt(productDetails.get(COLUMN_INDEX.get("quantity"))),
+                Integer.parseInt(productDetails.get(COLUMN_INDEX.get("promotion"))
+                ));
     }
 
     private List<String> getProductDetails(final String productLine) {
