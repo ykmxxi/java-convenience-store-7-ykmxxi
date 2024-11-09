@@ -19,42 +19,28 @@ public class InventoryClient {
 
     public void saveInventory() {
         List<List<String>> productTuples = fileInput.readProductTuples();
+        StorageRequestConverter storageRequestConverter = new StorageRequestConverter();
 
-        List<ProductStorageRequest> productStorageRequests = buildProductStorageRequests(productTuples);
-        List<ProductStockStorageRequest> productStockStorageRequests = buildProductStockStorageRequests(productTuples);
-        inventoryService.saveProducts(productStorageRequests);
+        saveProducts(storageRequestConverter, productTuples);
+        saveProductStocks(storageRequestConverter, productTuples);
+    }
+
+    private void saveProductStocks(final StorageRequestConverter storageRequestConverter,
+                                   final List<List<String>> productTuples
+    ) {
+        List<ProductStockStorageRequest> productStockStorageRequests =
+                storageRequestConverter.toProductStockStorageRequests(productTuples);
+
         inventoryService.saveProductStocks(productStockStorageRequests);
     }
 
-    private List<ProductStorageRequest> buildProductStorageRequests(final List<List<String>> productTuples) {
-        return productTuples.stream()
-                .map(this::toProductStorageRequest)
-                .toList();
-    }
+    private void saveProducts(final StorageRequestConverter storageRequestConverter,
+                              final List<List<String>> productTuples
+    ) {
+        List<ProductStorageRequest> productStorageRequests =
+                storageRequestConverter.toProductStorageRequests(productTuples);
 
-    private ProductStorageRequest toProductStorageRequest(final List<String> productTuple) {
-        return new ProductStorageRequest(
-                productTuple.get(getProductColumnIndexOf("name")),
-                Long.parseLong(productTuple.get(getProductColumnIndexOf("price")))
-        );
-    }
-
-    private List<ProductStockStorageRequest> buildProductStockStorageRequests(final List<List<String>> productTuples) {
-        return productTuples.stream()
-                .map(this::toProductStockStorageRequest)
-                .toList();
-    }
-
-    private ProductStockStorageRequest toProductStockStorageRequest(final List<String> productTuple) {
-        return new ProductStockStorageRequest(
-                productTuple.get(getProductColumnIndexOf("name")),
-                Integer.parseInt(productTuple.get(getProductColumnIndexOf("quantity"))),
-                Integer.parseInt(productTuple.get(getProductColumnIndexOf("promotion")))
-        );
-    }
-
-    private int getProductColumnIndexOf(final String columnName) {
-        return fileInput.getProductColumnIndexOf(columnName);
+        inventoryService.saveProducts(productStorageRequests);
     }
 
 }
