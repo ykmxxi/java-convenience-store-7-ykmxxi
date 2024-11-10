@@ -25,7 +25,7 @@ public class OutputView {
         productResponses.forEach(
                 productResponse -> stringBuilder.append(formatProductResponse(productResponse))
         );
-        System.out.print(stringBuilder);
+        System.out.println(stringBuilder);
     }
 
     private String formatProductResponse(final ProductResponse productResponse) {
@@ -48,6 +48,10 @@ public class OutputView {
         }
         String formattedQuantity = NUMBER_FORMAT.format(quantity);
         return String.join("", formattedQuantity, "개");
+    }
+
+    public void printError(final String message) {
+        System.out.println(String.join(" ", "[ERROR]", message, "다시 입력해 주세요."));
     }
 
 }

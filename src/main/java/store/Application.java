@@ -8,6 +8,7 @@ public class Application {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         ConvenienceClient convenienceClient = new ConvenienceClient(
                 configuration.inventoryClient(),
+                configuration.inputView(),
                 configuration.outputView()
         );
 

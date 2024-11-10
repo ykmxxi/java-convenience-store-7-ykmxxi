@@ -8,6 +8,7 @@ import store.domain.inventory.PromotionProduct;
 import store.domain.inventory.PromotionType;
 import store.presentation.client.inventory.InventoryClient;
 import store.presentation.file.FileInput;
+import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 import store.repository.Repository;
 import store.repository.inventory.ProductRepository;
@@ -20,6 +21,10 @@ public class ApplicationConfiguration {
 
     public InventoryClient inventoryClient() {
         return new InventoryClient(fileInput(), inventoryService());
+    }
+
+    public InputView inputView() {
+        return new InputView();
     }
 
     public OutputView outputView() {
