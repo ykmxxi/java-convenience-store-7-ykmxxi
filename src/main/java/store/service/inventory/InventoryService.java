@@ -1,5 +1,6 @@
 package store.service.inventory;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,41 +62,69 @@ public class InventoryService {
 
     public List<ProductResponse> getProducts() {
         List<ProductResponse> productResponses = new ArrayList<>();
+        addProductResponse(productResponses);
+        return productResponses;
+    }
+
+    private void addProductResponse(final List<ProductResponse> productResponses) {
         List<Product> products = productRepository.findAll();
         for (Product product : products) {
             ProductStock productStock = productStockRepository.find(product);
             if (isPromotionProduct(product)) {
-                PromotionProduct promotionProduct = promotionProductsRepository.find(product);
-                productResponses.add(new ProductResponse(product.name().value(), product.price(),
-                        productStock.promotionQuantity(),
-                        promotionProduct.promotion().name()));
+                addPromotionResponse(product, productResponses, productStock);
             }
-            productResponses.add(new ProductResponse(product.name().value(), product.price(),
-                    productStock.normalQuantity(), ""));
+            addNormalResponse(product, productResponses, productStock);
         }
-        return productResponses;
+    }
+
+    private void addPromotionResponse(final Product product, final List<ProductResponse> productResponses,
+                                      final ProductStock productStock
+    ) {
+        PromotionProduct promotionProduct = promotionProductsRepository.find(product);
+        productResponses.add(new ProductResponse(product.name().value(), product.price(),
+                productStock.promotionQuantity(), promotionProduct.promotion().name())
+        );
+    }
+
+    private void addNormalResponse(final Product product, final List<ProductResponse> productResponses,
+                                   final ProductStock productStock
+    ) {
+        productResponses.add(new ProductResponse(product.name().value(), product.price(),
+                productStock.normalQuantity(), ""));
+    }
+
+    private boolean isPromotionProduct(final Product product) {
+        return promotionProductsRepository.exists(product);
     }
 
     public Product findProduct(final String productName) {
         return productRepository.find(Name.from(productName));
     }
 
-    public boolean isPromotionProduct(final Product product) {
-        return promotionProductsRepository.exists(product);
+    public boolean canReceivePromotion(final Product product, final LocalDateTime createdAt) {
+        PromotionProduct promotionProduct = promotionProductsRepository.find(product);
+        Promotion promotion = promotionRepository.find(promotionProduct.promotion().promotionType());
+        return isPromotionProduct(product) && promotion.isPromotionPeriod(createdAt);
     }
 
     public ProductStock findProductStock(final Product product) {
         return productStockRepository.find(product);
     }
 
-    public boolean hasEnoughStockForGetFree(final Product product, final int quantity) {
+    public int calculatePromotionCount(final Product product, final int orderQuantity) {
         ProductStock productStock = productStockRepository.find(product);
         PromotionProduct promotionProduct = promotionProductsRepository.find(product);
-        return promotionProduct.hasEnoughStockForGetFree(productStock, quantity);
+        Promotion promotion = promotionRepository.find(promotionProduct.promotion().promotionType());
+        return promotion.calculatePromotionCount(productStock.promotionQuantity(), orderQuantity);
     }
 
-    public void findQuantityForGetFree(final Product product) {
+    public PromotionProduct findPromotionProduct(final Product product) {
+        return promotionProductsRepository.find(product);
+    }
+
+    public int calculatePromotionProductCount(final Product product, final int promotionCount) {
         PromotionProduct promotionProduct = promotionProductsRepository.find(product);
+        return promotionProduct.calculatePromotionProductCount(promotionCount);
     }
 
 }

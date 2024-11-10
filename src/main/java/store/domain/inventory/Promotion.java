@@ -21,6 +21,29 @@ public class Promotion {
         return new Promotion(promotionType, new PromotionPeriod(startDate, endDate));
     }
 
+    public boolean isPromotionPeriod(final LocalDateTime localDateTime) {
+        return promotionPeriod.isBetween(localDateTime);
+    }
+
+    public int calculatePromotionCount(final int stockQuantity, final int orderQuantity) {
+        int quantityForGetFree = promotionType.calculateQuantityForGetFree();
+        int maxPromotionCount = stockQuantity / quantityForGetFree;
+        if (orderQuantity < (maxPromotionCount * quantityForGetFree)) {
+            return orderQuantity / quantityForGetFree;
+        }
+        return maxPromotionCount;
+    }
+
+    public boolean isShortage(final int promotionCount, final int quantity) {
+        int quantityForGetFree = promotionType.calculateQuantityForGetFree();
+        return quantityForGetFree * promotionCount > quantity;
+    }
+
+    public boolean isOver(final int promotionCount, final int orderQuantity) {
+        int quantityForGetFree = promotionType.calculateQuantityForGetFree();
+        return quantityForGetFree * promotionCount < orderQuantity;
+    }
+
     public PromotionType promotionType() {
         return promotionType;
     }

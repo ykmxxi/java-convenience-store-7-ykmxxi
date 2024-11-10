@@ -1,4 +1,6 @@
 package store.presentation.client.sales.dto;
 
-public record OrderRequest(String productName, int quantity) {
+import java.time.LocalDateTime;
+
+public record OrderRequest(String productName, int quantity, LocalDateTime createdAt) {
 }

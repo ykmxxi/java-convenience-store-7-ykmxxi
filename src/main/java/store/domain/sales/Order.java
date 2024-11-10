@@ -22,12 +22,25 @@ public class Order {
         return new Order(OrderType.NORMAL_ORDER, product, quantity);
     }
 
+    public static Order reOrder(final Order order, final int newQuantity) {
+        return new Order(order.orderType, order.product, newQuantity);
+    }
+
     public boolean isPromotionType() {
         return this.orderType.isPromotion();
     }
 
     public String typeName() {
         return orderType.typeName();
+    }
+
+    public String productName() {
+        return product.name()
+                .value();
+    }
+
+    public int quantity() {
+        return quantity;
     }
 
 }

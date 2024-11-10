@@ -13,6 +13,18 @@ public class PromotionPeriod {
         this.endDate = endDate;
     }
 
+    public boolean isBetween(final LocalDateTime localDateTime) {
+        return isEqualOrAfterStartDate(localDateTime) && isEqualOrBeforeEndDate(localDateTime);
+    }
+
+    private boolean isEqualOrAfterStartDate(final LocalDateTime localDateTime) {
+        return startDate.isEqual(localDateTime) || startDate.isBefore(localDateTime);
+    }
+
+    private boolean isEqualOrBeforeEndDate(final LocalDateTime localDateTime) {
+        return endDate.isEqual(localDateTime) || endDate.isAfter(localDateTime);
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

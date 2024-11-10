@@ -12,8 +12,16 @@ public class PromotionProduct {
         this.promotion = promotion;
     }
 
-    public boolean hasEnoughStockForGetFree(final ProductStock productStock, final int quantity) {
-        return productStock.hasEnoughPromotionStock(quantity);
+    public boolean isShortageOrder(final int promotionCount, final int orderQuantity) {
+        return promotion.isShortage(promotionCount, orderQuantity);
+    }
+
+    public boolean isOverOrder(final int promotionCount, final int orderQuantity) {
+        return promotion.isOver(promotionCount, orderQuantity);
+    }
+
+    public int calculatePromotionProductCount(final int promotionCount) {
+        return promotion.promotionType().calculateQuantityForGetFree() * promotionCount;
     }
 
     public Promotion promotion() {

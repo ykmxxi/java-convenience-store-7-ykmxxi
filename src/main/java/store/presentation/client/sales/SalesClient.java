@@ -1,10 +1,13 @@
 package store.presentation.client.sales;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import store.presentation.client.sales.dto.OrderRequest;
 import store.service.sales.SalesService;
+import store.service.sales.dto.OrderResponse;
 
 public class SalesClient {
 
@@ -14,12 +17,28 @@ public class SalesClient {
         this.salesService = salesService;
     }
 
-    public void order(final String orderInput) {
-        List<OrderRequest> orderRequests = Arrays.stream(orderInput.split(","))
+    public List<OrderResponse> order(final String orderInput, final LocalDateTime orderCreatedAt) {
+        List<OrderRequest> orderRequests = toOrderRequests(orderInput, orderCreatedAt);
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for (OrderRequest orderRequest : orderRequests) {
+            orderResponses.add(salesService.order(orderRequest));
+        }
+        return orderResponses;
+    }
+
+    public void addPromotionFree(final int orderNumber) {
+        salesService.addPromotionFree(orderNumber);
+    }
+
+    public void removeNormalProduct(final int orderNumber, final int removeQuantity) {
+        salesService.removeNormalProduct(orderNumber, removeQuantity);
+    }
+
+    private List<OrderRequest> toOrderRequests(final String orderInput, final LocalDateTime orderCreatedAt) {
+        return Arrays.stream(orderInput.split(","))
                 .map(this::removeAffix)
-                .map(this::toOrderRequest)
+                .map(order -> toOrderRequest(order, orderCreatedAt))
                 .toList();
-        orderRequests.forEach(salesService::order);
     }
 
     private String removeAffix(final String orderInput) {
@@ -27,12 +46,12 @@ public class SalesClient {
                 .replaceAll("[\\[|\\]]", "");
     }
 
-    private OrderRequest toOrderRequest(final String orderInput) {
+    private OrderRequest toOrderRequest(final String orderInput, final LocalDateTime createdAt) {
         try {
             List<String> productAndQuantity = Arrays.stream(orderInput.split("-"))
                     .toList();
             int quantity = Integer.parseInt(productAndQuantity.getLast());
-            return new OrderRequest(productAndQuantity.getFirst(), quantity);
+            return new OrderRequest(productAndQuantity.getFirst(), quantity, createdAt);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("너무 큰 수량을 입력했습니다.");
         }

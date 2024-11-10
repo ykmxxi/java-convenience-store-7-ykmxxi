@@ -60,6 +60,10 @@ public enum PromotionType {
         }
     }
 
+    public int calculateQuantityForGetFree() {
+        return quantityOfBuy + quantityOfFree;
+    }
+
     public String getName() {
         return name;
     }
