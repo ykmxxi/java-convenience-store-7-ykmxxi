@@ -4,6 +4,7 @@ import java.util.List;
 
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
+import store.presentation.client.inventory.dto.PromotionStorageRequest;
 import store.presentation.file.FileInput;
 import store.service.inventory.InventoryService;
 
@@ -19,10 +20,12 @@ public class InventoryClient {
 
     public void saveInventory() {
         List<List<String>> productTuples = fileInput.readProductTuples();
+        List<List<String>> promotionTuples = fileInput.readPromotionTuples();
         StorageRequestConverter storageRequestConverter = new StorageRequestConverter();
 
         saveProducts(storageRequestConverter, productTuples);
         saveProductStocks(storageRequestConverter, productTuples);
+        savePromotions(storageRequestConverter, promotionTuples);
     }
 
     private void saveProductStocks(final StorageRequestConverter storageRequestConverter,
@@ -41,6 +44,13 @@ public class InventoryClient {
                 storageRequestConverter.toProductStorageRequests(productTuples);
 
         inventoryService.saveProducts(productStorageRequests);
+    }
+
+    private void savePromotions(final StorageRequestConverter storageRequestConverter,
+                                final List<List<String>> promotionTuples) {
+        List<PromotionStorageRequest> promotionStorageRequests =
+                storageRequestConverter.toPromotionStorageRequests(promotionTuples);
+        inventoryService.savePromotions(promotionStorageRequests);
     }
 
 }
