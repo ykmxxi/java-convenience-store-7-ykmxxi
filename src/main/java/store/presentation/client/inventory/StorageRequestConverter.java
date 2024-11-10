@@ -3,13 +3,12 @@ package store.presentation.client.inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
@@ -23,18 +22,22 @@ public class StorageRequestConverter {
     private static final String NORMAL = "null";
 
     public List<ProductStorageRequest> toProductStorageRequests(final List<List<String>> productTuples) {
-        return groupingByName(productTuples)
-                .stream()
-                .map(this::toProductStorageRequest)
-                .toList();
+        List<ProductStorageRequest> productStorageRequests = new ArrayList<>();
+        Set<String> productNames = extractProductNames(productTuples);
+        productTuples.forEach(productTuple ->
+                addRequestWithoutDuplication(productTuple, productNames, productStorageRequests));
+        return productStorageRequests;
+
     }
 
-    private Collection<List<String>> groupingByName(final List<List<String>> productTuples) {
-        return productTuples.stream()
-                .collect(Collectors.groupingBy(tuple -> tuple.get(getProductColumnIndexOf("name")),
-                        Collectors.collectingAndThen(Collectors.toList(), List::getFirst))
-                )
-                .values();
+    private void addRequestWithoutDuplication(final List<String> productTuple, final Set<String> productNames,
+                                              final List<ProductStorageRequest> productStorageRequests
+    ) {
+        String name = productTuple.get(getProductColumnIndexOf("name"));
+        if (productNames.contains(name)) {
+            productStorageRequests.add(toProductStorageRequest(productTuple));
+            productNames.remove(name);
+        }
     }
 
     public List<ProductStockStorageRequest> toProductStockStorageRequests(final List<List<String>> productTuples) {

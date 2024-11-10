@@ -55,18 +55,18 @@ public class StorageRequestMapper {
             final Repository<Product, Name> productRepository
     ) {
         return productStorageRequests.stream()
-                .map(request -> toPromotionProduct(request.promotion(), request.name(),
-                        promotionRepository, productRepository)
+                .map(request -> toPromotionProduct(request.name(), request.promotion(),
+                        productRepository, promotionRepository)
                 ).toList();
     }
 
-    private PromotionProduct toPromotionProduct(final String promotionName, final String productName,
-                                                final Repository<Promotion, PromotionType> promotionRepository,
-                                                final Repository<Product, Name> productRepository
+    private PromotionProduct toPromotionProduct(final String productName, final String promotionName,
+                                                final Repository<Product, Name> productRepository,
+                                                final Repository<Promotion, PromotionType> promotionRepository
     ) {
-        Promotion promotion = promotionRepository.find(PromotionType.from(promotionName));
         Product product = productRepository.find(Name.from(productName));
-        return new PromotionProduct(promotion, product);
+        Promotion promotion = promotionRepository.find(PromotionType.from(promotionName));
+        return new PromotionProduct(product, promotion);
     }
 
 }

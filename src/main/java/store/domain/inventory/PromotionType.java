@@ -60,4 +60,7 @@ public enum PromotionType {
         }
     }
 
+    public String getName() {
+        return name;
+    }
 }

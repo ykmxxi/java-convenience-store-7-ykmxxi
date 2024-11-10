@@ -24,7 +24,9 @@ public class FileInput {
         productTuples.stream()
                 .skip(COLUMN_NAME_LINE)
                 .forEach(productTuple -> ProductColumn.validateTupleColumnCount(productTuple.size()));
-        return productTuples;
+        return productTuples.stream()
+                .skip(COLUMN_NAME_LINE)
+                .toList();
     }
 
     public List<List<String>> readPromotionTuples() {
@@ -33,7 +35,9 @@ public class FileInput {
         promotionTuples.stream()
                 .skip(COLUMN_NAME_LINE)
                 .forEach(promotionTuple -> PromotionColumn.validateTupleColumnCount(promotionTuple.size()));
-        return promotionTuples;
+        return promotionTuples.stream()
+                .skip(COLUMN_NAME_LINE)
+                .toList();
     }
 
     private List<List<String>> readTuples(final String filePath) {

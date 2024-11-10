@@ -2,6 +2,7 @@ package store.repository.inventory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,12 @@ import store.repository.Repository;
 
 public class ProductRepository implements Repository<Product, Name> {
 
-    private static final Map<Name, Product> PRODUCT_INVENTORY = new HashMap<>();
+    private static final Map<Name, Product> PRODUCT_INVENTORY = new LinkedHashMap<>();
+
+    @Override
+    public boolean exists(final Name name) {
+        return PRODUCT_INVENTORY.containsKey(name);
+    }
 
     @Override
     public Product find(final Name name) {

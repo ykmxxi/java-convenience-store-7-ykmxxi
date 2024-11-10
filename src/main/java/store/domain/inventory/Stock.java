@@ -19,6 +19,22 @@ public class Stock {
         }
     }
 
+    public boolean hasPromotion() {
+        return promotion > NONE;
+    }
+
+    public boolean hasNormal() {
+        return normal > NONE;
+    }
+
+    public int normal() {
+        return normal;
+    }
+
+    public int promotion() {
+        return promotion;
+    }
+
     @Override
     public String toString() {
         return "Stock[" +

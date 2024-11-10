@@ -13,6 +13,11 @@ public class PromotionProductRepository implements Repository<PromotionProduct, 
     private static final Map<Product, PromotionProduct> PROMOTION_PRODUCTS_INVENTORY = new HashMap<>();
 
     @Override
+    public boolean exists(final Product product) {
+        return PROMOTION_PRODUCTS_INVENTORY.containsKey(product);
+    }
+
+    @Override
     public PromotionProduct find(final Product product) {
         return PROMOTION_PRODUCTS_INVENTORY.get(product);
     }

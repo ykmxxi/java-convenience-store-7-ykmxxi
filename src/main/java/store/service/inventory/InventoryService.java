@@ -1,5 +1,6 @@
 package store.service.inventory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import store.domain.inventory.Name;
@@ -13,19 +14,20 @@ import store.presentation.client.inventory.dto.ProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
 import store.repository.Repository;
+import store.service.inventory.dto.ProductResponse;
 
 public class InventoryService {
 
     private final Repository<Product, Name> productRepository;
     private final Repository<ProductStock, Product> productStockRepository;
     private final Repository<Promotion, PromotionType> promotionRepository;
-    private final Repository<PromotionProduct, Promotion> promotionProductsRepository;
+    private final Repository<PromotionProduct, Product> promotionProductsRepository;
     private final StorageRequestMapper storageRequestMapper;
 
     public InventoryService(final Repository<Product, Name> productRepository,
                             final Repository<ProductStock, Product> productStockRepository,
                             final Repository<Promotion, PromotionType> promotionRepository,
-                            final Repository<PromotionProduct, Promotion> promotionProductsRepository
+                            final Repository<PromotionProduct, Product> promotionProductsRepository
     ) {
         this.productRepository = productRepository;
         this.productStockRepository = productStockRepository;
@@ -55,6 +57,27 @@ public class InventoryService {
                 productStorageRequests, promotionRepository, productRepository
         );
         promotionProductsRepository.saveAll(promotionProducts);
+    }
+
+    public List<ProductResponse> getProducts() {
+        List<ProductResponse> productResponses = new ArrayList<>();
+        List<Product> products = productRepository.findAll();
+        for (Product product : products) {
+            ProductStock productStock = productStockRepository.find(product);
+            if (isPromotionProduct(product)) {
+                PromotionProduct promotionProduct = promotionProductsRepository.find(product);
+                productResponses.add(new ProductResponse(product.name().value(), product.price(),
+                        productStock.promotionQuantity(),
+                        promotionProduct.promotion().name()));
+            }
+            productResponses.add(new ProductResponse(product.name().value(), product.price(),
+                    productStock.normalQuantity(), ""));
+        }
+        return productResponses;
+    }
+
+    private boolean isPromotionProduct(final Product product) {
+        return promotionProductsRepository.exists(product);
     }
 
 }

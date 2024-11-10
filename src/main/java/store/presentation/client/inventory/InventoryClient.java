@@ -4,10 +4,11 @@ import java.util.List;
 
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
-import store.presentation.client.inventory.dto.PromotionProductsStorageRequest;
+import store.presentation.client.inventory.dto.PromotionProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
 import store.presentation.file.FileInput;
 import store.service.inventory.InventoryService;
+import store.service.inventory.dto.ProductResponse;
 
 public class InventoryClient {
 
@@ -29,6 +30,10 @@ public class InventoryClient {
         saveProductStocks(productTuples);
         savePromotions(promotionTuples);
         savePromotionProducts(productTuples);
+    }
+
+    public List<ProductResponse> getProducts() {
+        return inventoryService.getProducts();
     }
 
     private void saveProducts(final List<List<String>> productTuples) {

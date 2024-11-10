@@ -14,6 +14,11 @@ public class PromotionRepository implements Repository<Promotion, PromotionType>
     private static final Map<PromotionType, Promotion> PROMOTION_INVENTORY = new HashMap<>();
 
     @Override
+    public boolean exists(final PromotionType promotionType) {
+        return PROMOTION_INVENTORY.containsKey(promotionType);
+    }
+
+    @Override
     public Promotion find(final PromotionType promotionType) {
         if (PROMOTION_INVENTORY.containsKey(promotionType)) {
             return PROMOTION_INVENTORY.get(promotionType);

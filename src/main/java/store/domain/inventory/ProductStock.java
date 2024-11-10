@@ -14,4 +14,20 @@ public class ProductStock {
         return product;
     }
 
+    public boolean hasPromotionStock() {
+        return stock.hasPromotion();
+    }
+
+    public boolean hasNormalStock() {
+        return stock.hasNormal();
+    }
+
+    public int promotionQuantity() {
+        return stock.promotion();
+    }
+
+    public int normalQuantity() {
+        return stock.normal();
+    }
+
 }

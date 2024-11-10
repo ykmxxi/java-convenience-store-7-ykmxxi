@@ -25,6 +25,10 @@ public class Promotion {
         return promotionType;
     }
 
+    public String name() {
+        return promotionType.getName();
+    }
+
     @Override
     public String toString() {
         return "Promotion{" +

@@ -63,6 +63,11 @@ class StorageRequestMapperTest {
     static class ProductRepositoryStub implements Repository<Product, Name> {
 
         @Override
+        public boolean exists(final Name name) {
+            return true;
+        }
+
+        @Override
         public Product find(final Name name) {
             return Product.storage("콜라", 1_000L);
         }
