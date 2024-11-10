@@ -22,6 +22,13 @@ public class ProductStockRepository implements Repository<ProductStock, Product>
     }
 
     @Override
+    public List<ProductStock> findAll() {
+        return PRODUCT_STOCK_INVENTORY.values()
+                .stream()
+                .toList();
+    }
+
+    @Override
     public List<ProductStock> saveAll(final Iterable<ProductStock> entities) {
         List<ProductStock> productStocks = new ArrayList<>();
         for (ProductStock entity : entities) {

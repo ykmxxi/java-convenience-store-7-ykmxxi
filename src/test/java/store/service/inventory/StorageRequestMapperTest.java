@@ -68,6 +68,11 @@ class StorageRequestMapperTest {
         }
 
         @Override
+        public List<Product> findAll() {
+            return List.of();
+        }
+
+        @Override
         public List<Product> saveAll(final Iterable<Product> entities) {
             return List.of(Product.storage("콜라", 1_000L));
         }

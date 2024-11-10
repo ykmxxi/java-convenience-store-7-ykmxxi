@@ -3,14 +3,17 @@ package store.presentation.client.inventory;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
+import store.presentation.client.inventory.dto.PromotionProductsStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
 import store.presentation.file.ProductColumn;
 import store.presentation.file.PromotionColumn;
@@ -20,9 +23,18 @@ public class StorageRequestConverter {
     private static final String NORMAL = "null";
 
     public List<ProductStorageRequest> toProductStorageRequests(final List<List<String>> productTuples) {
-        return productTuples.stream()
+        return groupingByName(productTuples)
+                .stream()
                 .map(this::toProductStorageRequest)
                 .toList();
+    }
+
+    private Collection<List<String>> groupingByName(final List<List<String>> productTuples) {
+        return productTuples.stream()
+                .collect(Collectors.groupingBy(tuple -> tuple.get(getProductColumnIndexOf("name")),
+                        Collectors.collectingAndThen(Collectors.toList(), List::getFirst))
+                )
+                .values();
     }
 
     public List<ProductStockStorageRequest> toProductStockStorageRequests(final List<List<String>> productTuples) {
@@ -39,6 +51,14 @@ public class StorageRequestConverter {
     public List<PromotionStorageRequest> toPromotionStorageRequests(final List<List<String>> promotionTuples) {
         return promotionTuples.stream()
                 .map(this::toPromotionStorageRequest)
+                .toList();
+    }
+
+    public List<PromotionProductsStorageRequest> toPromotionProductStorageRequests(
+            final List<List<String>> productTuples) {
+        return productTuples.stream()
+                .filter(productTuple -> !productTuple.get(getProductColumnIndexOf("promotion")).equals(NORMAL))
+                .map(this::toPromotionProductStorageRequest)
                 .toList();
     }
 
@@ -81,10 +101,11 @@ public class StorageRequestConverter {
         String name = promotionTuple.get(getPromotionColumnIndexOf("name"));
         int quantityOfBuy = Integer.parseInt(promotionTuple.get(getPromotionColumnIndexOf("buy")));
         int quantityOfFree = Integer.parseInt(promotionTuple.get(getPromotionColumnIndexOf("get")));
-        LocalDateTime startDate = parseToLocalDateTime(promotionTuple, LocalTime.MIDNIGHT);
-        LocalDateTime endDate = parseToLocalDateTime(promotionTuple, LocalTime.MAX);
-        return new PromotionStorageRequest(name, quantityOfBuy,
-                quantityOfFree, startDate, endDate);
+        LocalDateTime startDate = parseToLocalDateTime(promotionTuple.get(
+                getPromotionColumnIndexOf("start_date")), LocalTime.MIDNIGHT);
+        LocalDateTime endDate = parseToLocalDateTime(promotionTuple.get(
+                getPromotionColumnIndexOf("end_date")), LocalTime.MAX);
+        return new PromotionStorageRequest(name, quantityOfBuy, quantityOfFree, startDate, endDate);
     }
 
     private ProductStorageRequest toProductStorageRequest(final List<String> productTuple) {
@@ -94,10 +115,14 @@ public class StorageRequestConverter {
         );
     }
 
-    private LocalDateTime parseToLocalDateTime(final List<String> promotionTuple, final LocalTime localTime) {
-        return LocalDateTime.of(
-                LocalDate.parse(promotionTuple.get(getPromotionColumnIndexOf("start_date"))),
-                localTime
+    private LocalDateTime parseToLocalDateTime(final String date, final LocalTime localTime) {
+        return LocalDateTime.of(LocalDate.parse(date), localTime);
+    }
+
+    private PromotionProductsStorageRequest toPromotionProductStorageRequest(final List<String> productTuple) {
+        return new PromotionProductsStorageRequest(
+                productTuple.get(getProductColumnIndexOf("name")),
+                productTuple.get(getProductColumnIndexOf("promotion"))
         );
     }
 

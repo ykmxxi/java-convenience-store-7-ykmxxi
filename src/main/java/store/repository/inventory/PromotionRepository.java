@@ -22,6 +22,13 @@ public class PromotionRepository implements Repository<Promotion, PromotionType>
     }
 
     @Override
+    public List<Promotion> findAll() {
+        return PROMOTION_INVENTORY.values()
+                .stream()
+                .toList();
+    }
+
+    @Override
     public List<Promotion> saveAll(final Iterable<Promotion> entities) {
         List<Promotion> promotions = new ArrayList<>();
         for (Promotion promotion : entities) {
