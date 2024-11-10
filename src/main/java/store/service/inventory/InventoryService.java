@@ -102,6 +102,9 @@ public class InventoryService {
     }
 
     public boolean canReceivePromotion(final Product product, final LocalDateTime createdAt) {
+        if (!promotionProductsRepository.exists(product)) {
+            return false;
+        }
         PromotionProduct promotionProduct = promotionProductsRepository.find(product);
         Promotion promotion = promotionRepository.find(promotionProduct.promotion().promotionType());
         return isPromotionProduct(product) && promotion.isPromotionPeriod(createdAt);
