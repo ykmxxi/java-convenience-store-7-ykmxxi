@@ -52,7 +52,7 @@ public class InventoryClient {
     }
 
     private void savePromotionProducts(final List<List<String>> productTuples) {
-        List<PromotionProductsStorageRequest> promotionProductsStorageRequests =
+        List<PromotionProductStorageRequest> promotionProductsStorageRequests =
                 storageRequestConverter.toPromotionProductStorageRequests(productTuples);
 
         inventoryService.savePromotionProducts(promotionProductsStorageRequests);

@@ -1,21 +1,17 @@
 package store.service.inventory;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import store.domain.inventory.Name;
 import store.domain.inventory.Product;
 import store.domain.inventory.ProductStock;
 import store.domain.inventory.Promotion;
-import store.domain.inventory.PromotionProducts;
+import store.domain.inventory.PromotionProduct;
 import store.domain.inventory.PromotionType;
 import store.domain.inventory.Stock;
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
-import store.presentation.client.inventory.dto.PromotionProductsStorageRequest;
+import store.presentation.client.inventory.dto.PromotionProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
 import store.repository.Repository;
 
@@ -53,27 +49,24 @@ public class StorageRequestMapper {
                 ).toList();
     }
 
-    public Iterable<PromotionProducts> toPromotionProducts(
-            final List<PromotionProductsStorageRequest> productStorageRequests,
+    public Iterable<PromotionProduct> toPromotionProducts(
+            final List<PromotionProductStorageRequest> productStorageRequests,
             final Repository<Promotion, PromotionType> promotionRepository,
             final Repository<Product, Name> productRepository
     ) {
-        return savePromotionProducts(productStorageRequests,
-                promotionRepository, productRepository).entrySet()
-                .stream()
-                .map(entry -> new PromotionProducts(entry.getKey(), entry.getValue()))
-                .toList();
+        return productStorageRequests.stream()
+                .map(request -> toPromotionProduct(request.promotion(), request.name(),
+                        promotionRepository, productRepository)
+                ).toList();
     }
 
-    private Map<Promotion, Set<Product>> savePromotionProducts(
-            final List<PromotionProductsStorageRequest> productStorageRequests,
-            final Repository<Promotion, PromotionType> promotionRepository,
-            final Repository<Product, Name> productRepository) {
-        Map<Promotion, Set<Product>> promotionProducts = new HashMap<>();
-        productStorageRequests.forEach(request -> promotionProducts.computeIfAbsent(
-                promotionRepository.find(PromotionType.from(request.promotion())),
-                key -> new HashSet<>()).add(productRepository.find(Name.from(request.name()))));
-        return promotionProducts;
+    private PromotionProduct toPromotionProduct(final String promotionName, final String productName,
+                                                final Repository<Promotion, PromotionType> promotionRepository,
+                                                final Repository<Product, Name> productRepository
+    ) {
+        Promotion promotion = promotionRepository.find(PromotionType.from(promotionName));
+        Product product = productRepository.find(Name.from(productName));
+        return new PromotionProduct(promotion, product);
     }
 
 }

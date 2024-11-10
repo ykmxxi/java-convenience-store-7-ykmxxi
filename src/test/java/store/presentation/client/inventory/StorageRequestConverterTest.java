@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
-import store.presentation.client.inventory.dto.PromotionProductsStorageRequest;
+import store.presentation.client.inventory.dto.PromotionProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
 
 class StorageRequestConverterTest {
@@ -57,7 +57,7 @@ class StorageRequestConverterTest {
     @Test
     void 할인_상품_저장_요청_변환() {
         assertThat(converter.toPromotionProductStorageRequests(productTuples))
-                .containsExactly(new PromotionProductsStorageRequest("콜라", "탄산2+1"));
+                .containsExactly(new PromotionProductStorageRequest("콜라", "탄산2+1"));
     }
 
 }

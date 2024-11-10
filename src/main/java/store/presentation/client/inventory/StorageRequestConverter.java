@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
-import store.presentation.client.inventory.dto.PromotionProductsStorageRequest;
+import store.presentation.client.inventory.dto.PromotionProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
 import store.presentation.file.ProductColumn;
 import store.presentation.file.PromotionColumn;
@@ -54,7 +54,7 @@ public class StorageRequestConverter {
                 .toList();
     }
 
-    public List<PromotionProductsStorageRequest> toPromotionProductStorageRequests(
+    public List<PromotionProductStorageRequest> toPromotionProductStorageRequests(
             final List<List<String>> productTuples) {
         return productTuples.stream()
                 .filter(productTuple -> !productTuple.get(getProductColumnIndexOf("promotion")).equals(NORMAL))
@@ -119,8 +119,8 @@ public class StorageRequestConverter {
         return LocalDateTime.of(LocalDate.parse(date), localTime);
     }
 
-    private PromotionProductsStorageRequest toPromotionProductStorageRequest(final List<String> productTuple) {
-        return new PromotionProductsStorageRequest(
+    private PromotionProductStorageRequest toPromotionProductStorageRequest(final List<String> productTuple) {
+        return new PromotionProductStorageRequest(
                 productTuple.get(getProductColumnIndexOf("name")),
                 productTuple.get(getProductColumnIndexOf("promotion"))
         );
