@@ -30,8 +30,21 @@ public class Order {
         return this.orderType.isPromotion();
     }
 
-    public String typeName() {
-        return orderType.typeName();
+    public boolean hasNormalProductQuantity(final int freeProductQuantity, final int promotionProductQuantity) {
+        return getNormalProductQuantity(freeProductQuantity, promotionProductQuantity) > 0;
+    }
+
+    public long calculateNormalProductAmount(final int freeProductQuantity, final int promotionProductQuantity) {
+        int normalProductQuantity = getNormalProductQuantity(freeProductQuantity, promotionProductQuantity);
+        return product.price() * normalProductQuantity;
+    }
+
+    private int getNormalProductQuantity(final int freeProductQuantity, final int promotionProductQuantity) {
+        return this.quantity - freeProductQuantity - promotionProductQuantity;
+    }
+
+    public Product product() {
+        return product;
     }
 
     public String productName() {

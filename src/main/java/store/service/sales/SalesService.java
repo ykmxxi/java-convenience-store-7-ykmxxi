@@ -31,6 +31,16 @@ public class SalesService {
         return toOrderResponse(getOrderNumber(), product, order);
     }
 
+    public List<OrderResponse> reOrder() {
+        List<OrderResponse> orderResponses = new ArrayList<>();
+        for (int orderNumber = 0; orderNumber < orders.size(); orderNumber++) {
+            orderResponses.add(
+                    toOrderResponse(orderNumber, orders.get(orderNumber).product(), orders.get(orderNumber))
+            );
+        }
+        return orderResponses;
+    }
+
     public void addPromotionFree(final int orderNumber) {
         Order order = orders.get(orderNumber);
         orders.set(orderNumber, Order.reOrder(order, order.quantity() + 1));
@@ -39,6 +49,26 @@ public class SalesService {
     public void removeNormalProduct(final int orderNumber, final int removeQuantity) {
         Order order = orders.get(orderNumber);
         orders.set(orderNumber, Order.reOrder(order, order.quantity() - removeQuantity));
+    }
+
+    public long applyMembershipDiscount(final List<OrderResponse> orderResponses) {
+        long totalAmount = 0L;
+        for (int orderNumber = 0; orderNumber < orders.size(); orderNumber++) {
+            Order order = orders.get(orderNumber);
+            OrderResponse orderResponse = orderResponses.get(orderNumber);
+            totalAmount += calculateNormalProductTotalAmount(order, orderResponse);
+        }
+        return totalAmount;
+    }
+
+    private long calculateNormalProductTotalAmount(final Order order, final OrderResponse orderResponse) {
+        if (order.hasNormalProductQuantity(
+                orderResponse.freeProductQuantity(), orderResponse.promotionProductQuantity())
+        ) {
+            return order.calculateNormalProductAmount(orderResponse.freeProductQuantity(),
+                    orderResponse.promotionProductQuantity());
+        }
+        return 0L;
     }
 
     private Order createOrder(final Product product, final int quantity, final LocalDateTime createdAt) {
@@ -61,6 +91,7 @@ public class SalesService {
             int promotionCount = inventoryService.calculatePromotionCount(product, order.quantity());
             int promotionProductCount = inventoryService.calculatePromotionProductCount(product, promotionCount);
             PromotionProduct promotionProduct = inventoryService.findPromotionProduct(product);
+            ProductStock productStock = inventoryService.findProductStock(product);
             if (promotionProduct.isShortageOrder(promotionCount, order.quantity())) {
                 return toPromotionOrderResponse(orderNumber, OrderResponseType.PROMOTION_N_SHORTAGE, order,
                         promotionProductCount, promotionCount);

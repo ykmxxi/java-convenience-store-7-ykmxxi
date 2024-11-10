@@ -130,4 +130,8 @@ public class InventoryService {
         return promotionProduct.calculatePromotionProductCount(promotionCount);
     }
 
+    public boolean isPromotion(final Product product) {
+        return promotionProductsRepository.exists(product);
+    }
+
 }

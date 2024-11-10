@@ -31,20 +31,11 @@ public class ConvenienceClient {
     public void run() {
         printWelcomeMessageWithConvenienceStoreInfo();
 
-        List<OrderResponse> orderResponses = order();
-        reOrder(orderResponses);
-    }
-
-    private void reOrder(final List<OrderResponse> orderResponses) {
-        for (OrderResponse orderResponse : orderResponses) {
-            if (orderResponse.orderResponseType().isShortage()) {
-                addPromotionFree(orderResponse);
-            }
-            if (orderResponse.orderResponseType().isOver()) {
-                removeNormalProduct(orderResponse);
-            }
+        List<OrderResponse> orderResponses = reOrder(order());
+        String membershipDiscountAmount = "";
+        if (applyMembershipDiscount()) {
+            membershipDiscountAmount = salesClient.applyMemberShipDiscount(orderResponses);
         }
-
     }
 
     private void printWelcomeMessageWithConvenienceStoreInfo() {
@@ -64,6 +55,42 @@ public class ConvenienceClient {
         }
     }
 
+    private List<OrderResponse> reOrder(final List<OrderResponse> orderResponses) {
+        for (OrderResponse orderResponse : orderResponses) {
+            if (orderResponse.orderResponseType().isShortage()) {
+                addPromotionFree(orderResponse);
+            }
+            if (orderResponse.orderResponseType().isOver()) {
+                removeNormalProduct(orderResponse);
+            }
+        }
+        return salesClient.reOrder();
+    }
+
+    private void addPromotionFree(final OrderResponse orderResponse) {
+        String promotionFreeCommand = readPromotionFreeCommand(orderResponse);
+        if (Command.isYes(promotionFreeCommand)) {
+            salesClient.addPromotionFree(orderResponse.orderNumber());
+        }
+    }
+
+    private void removeNormalProduct(final OrderResponse orderResponse) {
+        String withoutPromotionCommand = readWithoutPromotionCommand(orderResponse);
+        if (Command.isNo(withoutPromotionCommand)) {
+            salesClient.removeNormalProduct(orderResponse.orderNumber(), orderResponse.normalProductQuantity());
+        }
+    }
+
+    private String readPromotionFreeCommand(final OrderResponse orderResponse) {
+        while (true) {
+            try {
+                return inputView.readPromotionFreeCommand(orderResponse.productName());
+            } catch (IllegalArgumentException e) {
+                outputView.printError(e.getMessage());
+            }
+        }
+    }
+
     private String readWithoutPromotionCommand(final OrderResponse orderResponse) {
         while (true) {
             try {
@@ -75,24 +102,11 @@ public class ConvenienceClient {
         }
     }
 
-    private void removeNormalProduct(final OrderResponse orderResponse) {
-        String withoutPromotionCommand = readWithoutPromotionCommand(orderResponse);
-        if (Command.isNo(withoutPromotionCommand)) {
-            salesClient.removeNormalProduct(orderResponse.orderNumber(), orderResponse.normalProductQuantity());
-        }
-    }
-
-    private void addPromotionFree(final OrderResponse orderResponse) {
-        String promotionFreeCommand = readPromotionFreeCommand(orderResponse);
-        if (Command.isYes(promotionFreeCommand)) {
-            salesClient.addPromotionFree(orderResponse.orderNumber());
-        }
-    }
-
-    private String readPromotionFreeCommand(final OrderResponse orderResponse) {
+    private boolean applyMembershipDiscount() {
         while (true) {
             try {
-                return inputView.readPromotionFreeCommand(orderResponse.productName());
+                String membershipDiscountCommand = inputView.readMembershipDiscountCommand();
+                return Command.isYes(membershipDiscountCommand);
             } catch (IllegalArgumentException e) {
                 outputView.printError(e.getMessage());
             }

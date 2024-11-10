@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import store.domain.sales.MembershipDiscount;
 import store.presentation.client.sales.dto.OrderRequest;
 import store.service.sales.SalesService;
 import store.service.sales.dto.OrderResponse;
@@ -12,9 +13,11 @@ import store.service.sales.dto.OrderResponse;
 public class SalesClient {
 
     private final SalesService salesService;
+    private final MembershipDiscount membershipDiscount;
 
     public SalesClient(final SalesService salesService) {
         this.salesService = salesService;
+        this.membershipDiscount = new MembershipDiscount();
     }
 
     public List<OrderResponse> order(final String orderInput, final LocalDateTime orderCreatedAt) {
@@ -32,6 +35,14 @@ public class SalesClient {
 
     public void removeNormalProduct(final int orderNumber, final int removeQuantity) {
         salesService.removeNormalProduct(orderNumber, removeQuantity);
+    }
+
+    public List<OrderResponse> reOrder() {
+        return salesService.reOrder();
+    }
+
+    public String applyMemberShipDiscount(final List<OrderResponse> orderResponses) {
+        return Long.toString(salesService.applyMembershipDiscount(orderResponses));
     }
 
     private List<OrderRequest> toOrderRequests(final String orderInput, final LocalDateTime orderCreatedAt) {

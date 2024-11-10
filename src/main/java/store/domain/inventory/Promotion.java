@@ -34,9 +34,9 @@ public class Promotion {
         return maxPromotionCount;
     }
 
-    public boolean isShortage(final int promotionCount, final int quantity) {
+    public boolean isShortage(final int promotionCount, final int orderQuantity) {
         int quantityForGetFree = promotionType.calculateQuantityForGetFree();
-        return quantityForGetFree * promotionCount > quantity;
+        return quantityForGetFree + (quantityForGetFree * promotionCount) > orderQuantity;
     }
 
     public boolean isOver(final int promotionCount, final int orderQuantity) {
