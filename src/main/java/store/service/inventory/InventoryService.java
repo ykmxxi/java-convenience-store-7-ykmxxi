@@ -76,8 +76,26 @@ public class InventoryService {
         return productResponses;
     }
 
-    private boolean isPromotionProduct(final Product product) {
+    public Product findProduct(final String productName) {
+        return productRepository.find(Name.from(productName));
+    }
+
+    public boolean isPromotionProduct(final Product product) {
         return promotionProductsRepository.exists(product);
+    }
+
+    public ProductStock findProductStock(final Product product) {
+        return productStockRepository.find(product);
+    }
+
+    public boolean hasEnoughStockForGetFree(final Product product, final int quantity) {
+        ProductStock productStock = productStockRepository.find(product);
+        PromotionProduct promotionProduct = promotionProductsRepository.find(product);
+        return promotionProduct.hasEnoughStockForGetFree(productStock, quantity);
+    }
+
+    public void findQuantityForGetFree(final Product product) {
+        PromotionProduct promotionProduct = promotionProductsRepository.find(product);
     }
 
 }

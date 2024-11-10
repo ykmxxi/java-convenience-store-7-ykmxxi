@@ -19,12 +19,12 @@ public class Stock {
         }
     }
 
-    public boolean hasPromotion() {
-        return promotion > NONE;
+    public boolean isEnough(final int quantity) {
+        return (normal + promotion) >= quantity;
     }
 
-    public boolean hasNormal() {
-        return normal > NONE;
+    public boolean isEnoughPromotionStock(final int quantity) {
+        return promotion >= quantity;
     }
 
     public int normal() {

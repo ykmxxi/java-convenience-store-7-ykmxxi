@@ -7,6 +7,7 @@ import store.domain.inventory.Promotion;
 import store.domain.inventory.PromotionProduct;
 import store.domain.inventory.PromotionType;
 import store.presentation.client.inventory.InventoryClient;
+import store.presentation.client.sales.SalesClient;
 import store.presentation.file.FileInput;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
@@ -16,11 +17,16 @@ import store.repository.inventory.ProductStockRepository;
 import store.repository.inventory.PromotionProductRepository;
 import store.repository.inventory.PromotionRepository;
 import store.service.inventory.InventoryService;
+import store.service.sales.SalesService;
 
 public class ApplicationConfiguration {
 
     public InventoryClient inventoryClient() {
         return new InventoryClient(fileInput(), inventoryService());
+    }
+
+    public SalesClient orderClient() {
+        return new SalesClient(salesService());
     }
 
     public InputView inputView() {
@@ -39,6 +45,10 @@ public class ApplicationConfiguration {
         return new InventoryService(
                 productRepository(), productStockRepository(), promotionRepository(), promotionProductsRepository()
         );
+    }
+
+    private SalesService salesService() {
+        return new SalesService(inventoryService());
     }
 
     private Repository<Product, Name> productRepository() {

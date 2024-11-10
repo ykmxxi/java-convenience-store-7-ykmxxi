@@ -1,7 +1,6 @@
 package store.domain.inventory;
 
 import java.util.Objects;
-import java.util.Set;
 
 public class PromotionProduct {
 
@@ -11,6 +10,10 @@ public class PromotionProduct {
     public PromotionProduct(final Product product, final Promotion promotion) {
         this.product = product;
         this.promotion = promotion;
+    }
+
+    public boolean hasEnoughStockForGetFree(final ProductStock productStock, final int quantity) {
+        return productStock.hasEnoughPromotionStock(quantity);
     }
 
     public Promotion promotion() {

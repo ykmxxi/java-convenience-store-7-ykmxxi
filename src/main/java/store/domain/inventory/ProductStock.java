@@ -14,12 +14,12 @@ public class ProductStock {
         return product;
     }
 
-    public boolean hasPromotionStock() {
-        return stock.hasPromotion();
+    public boolean isEnough(final int quantity) {
+        return stock.isEnough(quantity);
     }
 
-    public boolean hasNormalStock() {
-        return stock.hasNormal();
+    public boolean hasEnoughPromotionStock(final int quantity) {
+        return stock.isEnoughPromotionStock(quantity);
     }
 
     public int promotionQuantity() {
