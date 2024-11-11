@@ -13,6 +13,13 @@ public class Stock {
         this.promotion = promotion;
     }
 
+    public static Stock decrease(final Stock stock, final int quantity) {
+        if (stock.promotion >= quantity) {
+            return new Stock(stock.normal, stock.promotion - quantity);
+        }
+        return new Stock(stock.normal - quantity - stock.promotion, NONE);
+    }
+
     private void validateStockQuantity(final int quantity) {
         if (quantity < NONE) {
             throw new IllegalStateException("재고 수량 정보가 잘못 됐습니다.");

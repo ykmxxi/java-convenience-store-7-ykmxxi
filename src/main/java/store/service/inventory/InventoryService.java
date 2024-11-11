@@ -11,6 +11,7 @@ import store.domain.promotion.Promotion;
 import store.domain.promotion.PromotionProduct;
 import store.domain.promotion.PromotionProducts;
 import store.domain.promotion.Promotions;
+import store.domain.sales.Order;
 import store.domain.stock.ProductStock;
 import store.domain.stock.ProductStorage;
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
@@ -125,7 +126,6 @@ public class InventoryService {
     }
 
     public int calculatePromotionQuantity(final Product product, final int promotionCount) {
-        ProductStock productStock = productStorage.find(product);
         PromotionProduct promotionProduct = promotionProducts.find(product);
         Promotion promotion = promotions.find(promotionProduct.promotion().promotionType());
         return promotionCount * promotion.minimumQuantity();
@@ -137,6 +137,14 @@ public class InventoryService {
             return false;
         }
         return promotionProduct.promotion().isOrderQuantityShortage(orderQuantity);
+    }
+
+    public void decreaseProductStock(final List<Order> orders) {
+        for (Order order : orders) {
+            ProductStock productStock = productStorage.find(order.product());
+            ProductStock decreaseStock = productStock.decreaseStock(order.quantity());
+            productStorage.update(order.product(), decreaseStock);
+        }
     }
 
 }

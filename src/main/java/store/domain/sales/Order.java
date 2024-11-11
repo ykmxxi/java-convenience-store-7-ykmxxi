@@ -47,6 +47,14 @@ public class Order {
         return this.orderType.isNeedReOrder();
     }
 
+    public boolean hasPromotionFree() {
+        return this.promotionCount > 0;
+    }
+
+    public boolean isNormalType() {
+        return orderType.isNormal();
+    }
+
     public Product product() {
         return product;
     }

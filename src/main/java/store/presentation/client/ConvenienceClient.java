@@ -6,9 +6,11 @@ import java.util.List;
 import camp.nextstep.edu.missionutils.DateTimes;
 import store.presentation.client.inventory.InventoryClient;
 import store.presentation.client.sales.SalesClient;
+import store.presentation.client.sales.dto.PayRequest;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 import store.service.inventory.dto.ProductResponse;
+import store.service.sales.dto.PayResponse;
 import store.service.sales.dto.ReOrderResponse;
 
 public class ConvenienceClient {
@@ -33,6 +35,20 @@ public class ConvenienceClient {
 
         List<ReOrderResponse> reOrderResponses = order();
         reOrder(reOrderResponses);
+
+        PayResponse payResponses = pay();
+        outputView.printReceipt(payResponses);
+    }
+
+    private PayResponse pay() {
+        while (true) {
+            try {
+                String membership = inputView.readMembershipDiscountCommand();
+                return salesClient.pay(membership);
+            } catch (IllegalArgumentException e) {
+                outputView.printError(e.getMessage());
+            }
+        }
     }
 
     private void printWelcomeMessageWithConvenienceStoreInfo() {

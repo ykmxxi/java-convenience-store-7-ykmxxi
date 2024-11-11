@@ -5,23 +5,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import store.domain.product.Product;
+import store.domain.sales.MembershipDiscount;
 import store.domain.sales.Order;
 import store.presentation.client.sales.dto.OrderRequest;
 import store.presentation.client.sales.dto.ReOrderRequest;
 import store.service.inventory.InventoryService;
+import store.service.sales.dto.BuyingProductResponse;
+import store.service.sales.dto.PayResponse;
+import store.service.sales.dto.PromotionProductResponse;
 import store.service.sales.dto.ReOrderResponse;
 import store.service.sales.dto.ReOrderResponseType;
+import store.service.sales.dto.TotalAmountResponse;
 
 public class SalesService {
 
     private final InventoryService inventoryService;
     private final List<Order> orders = new ArrayList<>();
+    private final MembershipDiscount membershipDiscount;
 
     public SalesService(final InventoryService inventoryService) {
         this.inventoryService = inventoryService;
+        this.membershipDiscount = new MembershipDiscount();
     }
 
     public List<ReOrderResponse> order(final List<OrderRequest> orderRequests) {
+        orders.clear();
         for (OrderRequest orderRequest : orderRequests) {
             Product product = inventoryService.findProduct(orderRequest.productName());
             int quantity = orderRequest.quantity();
@@ -112,6 +120,82 @@ public class SalesService {
             return Order.canReceiveFree(product, orderQuantity, promotionCount);
         }
         return Order.promotion(product, orderQuantity, promotionCount);
+    }
+
+    public PayResponse pay(final boolean applyMembership) {
+        inventoryService.decreaseProductStock(orders);
+        return toPayResponse(applyMembership);
+    }
+
+    private PayResponse toPayResponse(final boolean applyMembership) {
+        List<BuyingProductResponse> buyingProductResponses = toBuyingProductResponses();
+        List<PromotionProductResponse> promotionProductResponses = toPromotionProductResponses();
+        TotalAmountResponse totalAmountResponse = calculateTotalBuyingAmount();
+        long promotionAmount = calculatePromotionAmount();
+        long membershipAmount = calculateMembershipAmount(applyMembership);
+        long totalPayAmount = totalAmountResponse.totalAmount() - promotionAmount - membershipAmount;
+        return new PayResponse(buyingProductResponses, promotionProductResponses, totalAmountResponse,
+                promotionAmount, membershipAmount, totalPayAmount);
+    }
+
+    private List<BuyingProductResponse> toBuyingProductResponses() {
+        return orders.stream().
+                filter(order -> order.quantity() != 0)
+                .map(this::toBuyingProductResponse)
+                .toList();
+    }
+
+    private BuyingProductResponse toBuyingProductResponse(final Order order) {
+        return new BuyingProductResponse(order.productName(), order.quantity(),
+                order.quantity() * order.product().price());
+    }
+
+    private List<PromotionProductResponse> toPromotionProductResponses() {
+        return orders.stream()
+                .filter(Order::hasPromotionFree)
+                .map(order -> new PromotionProductResponse(order.productName(), order.promotionCount()))
+                .toList();
+    }
+
+    private TotalAmountResponse calculateTotalBuyingAmount() {
+        int totalQuantity = orders.stream()
+                .mapToInt(Order::quantity)
+                .sum();
+        long totalBuyingAmount = orders.stream()
+                .mapToLong(order -> order.product().price() * order.quantity())
+                .sum();
+        return new TotalAmountResponse(totalQuantity, totalBuyingAmount);
+    }
+
+    private long calculatePromotionAmount() {
+        return orders.stream()
+                .mapToLong(order -> order.product().price() * order.promotionCount())
+                .sum();
+    }
+
+    private long calculateNormalProductTotalPrice() {
+        long normalProductTotalPrice = 0L;
+        for (Order order : orders) {
+            if (order.isNormalType()) {
+                normalProductTotalPrice += order.product().price() * order.quantity();
+                continue;
+            }
+            normalProductTotalPrice = calculateWithoutPromotionProduct(order, normalProductTotalPrice);
+        }
+        return normalProductTotalPrice;
+    }
+
+    private long calculateWithoutPromotionProduct(final Order order, long normalProductTotalPrice) {
+        int promotionQuantity = inventoryService.calculatePromotionQuantity(order.product(), order.promotionCount());
+        normalProductTotalPrice += (order.quantity() - promotionQuantity) * order.product().price();
+        return normalProductTotalPrice;
+    }
+
+    private long calculateMembershipAmount(final boolean applyMembership) {
+        if (applyMembership) {
+            return membershipDiscount.calculateDiscountAmount(calculateNormalProductTotalPrice());
+        }
+        return 0L;
     }
 
 }

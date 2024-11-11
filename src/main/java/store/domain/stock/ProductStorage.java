@@ -22,6 +22,10 @@ public class ProductStorage {
         return PRODUCT_STORAGE.get(product);
     }
 
+    public void update(final Product product, final ProductStock decreaseStock) {
+        PRODUCT_STORAGE.replace(product, decreaseStock);
+    }
+
     public boolean hasEnoughPromotionStock(final Product product, final int minPromotionQuantity) {
         ProductStock productStock = PRODUCT_STORAGE.get(product);
         return productStock.hasEnoughPromotionStock(minPromotionQuantity);

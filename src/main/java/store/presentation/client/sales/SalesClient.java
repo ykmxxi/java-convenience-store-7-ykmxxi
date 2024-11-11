@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import store.domain.sales.MembershipDiscount;
 import store.presentation.client.sales.dto.OrderRequest;
 import store.presentation.client.sales.dto.ReOrderRequest;
 import store.presentation.view.Command;
 import store.service.sales.SalesService;
+import store.service.sales.dto.PayResponse;
 import store.service.sales.dto.ReOrderResponse;
 
 public class SalesClient {
@@ -71,6 +71,10 @@ public class SalesClient {
     private ReOrderRequest toReOrderRequest(final boolean yesOrNo, final ReOrderResponse reOrderResponse) {
         return new ReOrderRequest(yesOrNo, reOrderResponse.orderNumber(),
                 reOrderResponse.reOrderResponseType(), reOrderResponse.reOrderQuantity());
+    }
+
+    public PayResponse pay(final String membership) {
+        return salesService.pay(Command.from(membership));
     }
 
 }

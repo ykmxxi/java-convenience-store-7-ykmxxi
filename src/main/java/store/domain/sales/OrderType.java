@@ -14,6 +14,10 @@ public enum OrderType {
         this.orderTypeName = orderTypeName;
     }
 
+    public boolean isNormal() {
+        return this.equals(NORMAL_ORDER);
+    }
+
     public boolean isPromotion() {
         return !this.equals(NORMAL_ORDER);
     }

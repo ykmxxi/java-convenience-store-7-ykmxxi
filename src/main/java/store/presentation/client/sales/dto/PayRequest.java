@@ -4,5 +4,5 @@ import java.util.List;
 
 import store.service.sales.dto.ReOrderResponse;
 
-public record PayRequest(List<ReOrderResponse> reOrderRespons, boolean membershipDiscount) {
+public record PayRequest(boolean membershipDiscount) {
 }

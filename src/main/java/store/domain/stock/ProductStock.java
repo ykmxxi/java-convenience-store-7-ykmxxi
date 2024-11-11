@@ -28,6 +28,10 @@ public class ProductStock {
         return stock.isOverPromotionStock(quantity);
     }
 
+    public ProductStock decreaseStock(final int quantity) {
+        return new ProductStock(product, Stock.decrease(this.stock, quantity));
+    }
+
     public int promotionQuantity() {
         return stock.promotion();
     }
