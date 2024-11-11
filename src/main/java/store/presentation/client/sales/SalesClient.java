@@ -54,11 +54,18 @@ public class SalesClient {
         try {
             List<String> productAndQuantity = Arrays.stream(orderInput.split("-"))
                     .toList();
-            int quantity = Integer.parseInt(productAndQuantity.getLast());
+            int quantity = validateZero(Integer.parseInt(productAndQuantity.getLast()));
             return new OrderRequest(productAndQuantity.getFirst(), quantity, createdAt);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("너무 큰 수량을 입력했습니다.");
         }
+    }
+
+    private int validateZero(final int quantity) {
+        if (quantity == 0) {
+            throw new IllegalArgumentException("구매 수량에 0을 입력했습니다.");
+        }
+        return quantity;
     }
 
     private ReOrderRequest toReOrderRequest(final boolean yesOrNo, final ReOrderResponse reOrderResponse) {
