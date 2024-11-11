@@ -36,6 +36,12 @@ public class InputView {
         return readCommand();
     }
 
+    public String readRePurchase() {
+        System.out.println();
+        System.out.println("감사합니다. 구매하고 싶은 다른 상품이 있나요? (Y/N)");
+        return readCommand();
+    }
+
     private String readLine() {
         String inputLine = Console.readLine();
         validateNull(inputLine);

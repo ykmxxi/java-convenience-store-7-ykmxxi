@@ -6,7 +6,7 @@ import java.util.List;
 import camp.nextstep.edu.missionutils.DateTimes;
 import store.presentation.client.inventory.InventoryClient;
 import store.presentation.client.sales.SalesClient;
-import store.presentation.client.sales.dto.PayRequest;
+import store.presentation.view.Command;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 import store.service.inventory.dto.ProductResponse;
@@ -31,13 +31,15 @@ public class ConvenienceClient {
     }
 
     public void run() {
-        printWelcomeMessageWithConvenienceStoreInfo();
+        do {
+            printWelcomeMessageWithConvenienceStoreInfo();
 
-        List<ReOrderResponse> reOrderResponses = order();
-        reOrder(reOrderResponses);
+            List<ReOrderResponse> reOrderResponses = order();
+            reOrder(reOrderResponses);
 
-        PayResponse payResponses = pay();
-        outputView.printReceipt(payResponses);
+            PayResponse payResponses = pay();
+            outputView.printReceipt(payResponses);
+        } while (isRestart());
     }
 
     private PayResponse pay() {
@@ -102,6 +104,17 @@ public class ConvenienceClient {
             try {
                 return inputView.readPromotionFreeCommand(reOrderResponse.productName(),
                         reOrderResponse.reOrderQuantity());
+            } catch (IllegalArgumentException e) {
+                outputView.printError(e.getMessage());
+            }
+        }
+    }
+
+    private boolean isRestart() {
+        while (true) {
+            try {
+                String rePurchaseInput = inputView.readRePurchase();
+                return Command.from(rePurchaseInput);
             } catch (IllegalArgumentException e) {
                 outputView.printError(e.getMessage());
             }

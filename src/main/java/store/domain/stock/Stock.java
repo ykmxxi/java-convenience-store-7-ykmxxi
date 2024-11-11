@@ -17,7 +17,8 @@ public class Stock {
         if (stock.promotion >= quantity) {
             return new Stock(stock.normal, stock.promotion - quantity);
         }
-        return new Stock(stock.normal - quantity - stock.promotion, NONE);
+        int remain = quantity - stock.promotion;
+        return new Stock(stock.normal - remain, NONE);
     }
 
     private void validateStockQuantity(final int quantity) {
