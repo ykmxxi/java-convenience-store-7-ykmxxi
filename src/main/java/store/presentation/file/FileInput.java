@@ -20,10 +20,6 @@ public class FileInput {
 
     public List<List<String>> readProductTuples() {
         List<List<String>> productTuples = readTuples(getFilePath(PRODUCT_FILE));
-        ProductColumn.validateColumnNameLine(productTuples.getFirst());
-        productTuples.stream()
-                .skip(COLUMN_NAME_LINE)
-                .forEach(productTuple -> ProductColumn.validateTupleColumnCount(productTuple.size()));
         return productTuples.stream()
                 .skip(COLUMN_NAME_LINE)
                 .toList();
@@ -31,10 +27,6 @@ public class FileInput {
 
     public List<List<String>> readPromotionTuples() {
         List<List<String>> promotionTuples = readTuples(getFilePath(PROMOTION_FILE));
-        PromotionColumn.validateColumnNameLine(promotionTuples.getFirst());
-        promotionTuples.stream()
-                .skip(COLUMN_NAME_LINE)
-                .forEach(promotionTuple -> PromotionColumn.validateTupleColumnCount(promotionTuple.size()));
         return promotionTuples.stream()
                 .skip(COLUMN_NAME_LINE)
                 .toList();

@@ -7,14 +7,7 @@ public class Price {
     private final long value;
 
     private Price(final long value) {
-        validateLessThanMinimumPrice(value);
         this.value = value;
-    }
-
-    private void validateLessThanMinimumPrice(final long value) {
-        if (value < 1L) {
-            throw new IllegalStateException("상품 가격 정보를 불러오는 과정에서 시스템 예외가 발생했습니다. 프로그램을 다시 실행해 주세요.");
-        }
     }
 
     public static Price from(final long value) {

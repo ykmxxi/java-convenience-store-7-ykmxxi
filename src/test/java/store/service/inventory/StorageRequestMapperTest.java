@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import store.domain.product.Name;
 import store.domain.product.Product;
 import store.domain.product.Products;
 import store.domain.promotion.Promotion;
@@ -45,7 +44,7 @@ class StorageRequestMapperTest {
         products.saveAll(List.of(Product.storage("콜라", 1000L)));
         List<ProductStockStorageRequest> requests = List.of(new ProductStockStorageRequest("콜라", 10, 10));
 
-                assertThat(storageRequestMapper.toProductStocks(requests, products))
+        assertThat(storageRequestMapper.toProductStocks(requests, products))
                 .hasOnlyElementsOfType(ProductStock.class);
     }
 

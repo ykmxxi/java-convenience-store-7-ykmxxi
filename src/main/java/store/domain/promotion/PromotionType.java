@@ -43,23 +43,6 @@ public enum PromotionType {
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 행사입니다."));
     }
 
-    public void validateBuyNGetOneFree(final int quantityOfBuy, final int quantityOfFree) {
-        if (isInvalidQuantity(quantityOfBuy, quantityOfFree)) {
-            throw new IllegalStateException("해당 행사에 맞지 않는 수량입니다.");
-        }
-    }
-
-    private boolean isInvalidQuantity(final int quantityOfBuy, final int quantityOfFree) {
-        return this.quantityOfBuy != quantityOfBuy ||
-                this.quantityOfFree != quantityOfFree;
-    }
-
-    public void validatePeriod(final LocalDateTime startDate, final LocalDateTime endDate) {
-        if (!this.startDate.isEqual(startDate) || !this.endDate.isEqual(endDate)) {
-            throw new IllegalStateException("해당 행사 기간과 다릅니다.");
-        }
-    }
-
     public int calculateQuantityForGetFree() {
         return quantityOfBuy + quantityOfFree;
     }

@@ -16,8 +16,6 @@ public class Promotion {
                                LocalDateTime startDate, LocalDateTime endDate
     ) {
         PromotionType promotionType = PromotionType.from(name);
-        promotionType.validateBuyNGetOneFree(quantityOfBuy, quantityOfFree);
-        promotionType.validatePeriod(startDate, endDate);
         return new Promotion(promotionType, new PromotionPeriod(startDate, endDate));
     }
 

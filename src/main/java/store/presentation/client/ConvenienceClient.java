@@ -3,6 +3,7 @@ package store.presentation.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import camp.nextstep.edu.missionutils.Console;
 import camp.nextstep.edu.missionutils.DateTimes;
 import store.presentation.client.inventory.InventoryClient;
 import store.presentation.client.sales.SalesClient;
@@ -31,12 +32,20 @@ public class ConvenienceClient {
     }
 
     public void run() {
+        try {
+            startConvenienceStore();
+        } finally {
+            Console.close();
+        }
+    }
+
+    private void startConvenienceStore() {
         do {
             printWelcomeMessageWithConvenienceStoreInfo();
 
             List<ReOrderResponse> reOrderResponses = order();
             reOrder(reOrderResponses);
-
+            
             PayResponse payResponses = pay();
             outputView.printReceipt(payResponses);
         } while (isRestart());

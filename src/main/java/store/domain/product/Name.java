@@ -13,7 +13,7 @@ public class Name {
 
     private void validateNullAndBlank(final String value) {
         if (value == null || value.isBlank()) {
-            throw new IllegalStateException("상품 이름 정보를 불러오는 과정에서 시스템 예외가 발생했습니다. 프로그램을 다시 실행해 주세요.");
+            throw new IllegalArgumentException("잘못된 값을 입력했습니다.");
         }
     }
 

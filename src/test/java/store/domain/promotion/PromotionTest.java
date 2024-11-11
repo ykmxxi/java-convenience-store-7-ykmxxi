@@ -10,8 +10,6 @@ import java.time.LocalTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 
 class PromotionTest {
 
@@ -30,21 +28,6 @@ class PromotionTest {
     @Test
     void 프로모션_이름이_다른_경우_생성_실패() {
         assertThatThrownBy(() -> Promotion.of("음료2+1", 2, 1, startDate, endDate))
-                .isInstanceOf(IllegalStateException.class);
-    }
-
-    @DisplayName("프로모션 Buy N for Get 1 수량이 다르면 생성 실패하고 시스템 예외가 발생한다.")
-    @Test
-    void 프로모션_수량이_다른_경우_생성_실패() {
-        assertThatThrownBy(() -> Promotion.of(name, 1, 1, startDate, endDate))
-                .isInstanceOf(IllegalStateException.class);
-    }
-
-    @DisplayName("프로모션 기간이 다르면 생성 실패하고 시스템 예외가 발생한다.")
-    @CsvSource(value = {"2024-01-01T00:00:00,2025-01-01T00:00:00", "2024-01-01T00:00:01, 2024-12-31T23:59:59"})
-    @ParameterizedTest
-    void 프로모션_기간이_다른_경우_생성_실패(LocalDateTime startDate, LocalDateTime endDate) {
-        assertThatThrownBy(() -> Promotion.of(name, 2, 1, startDate, endDate))
                 .isInstanceOf(IllegalStateException.class);
     }
 

@@ -7,8 +7,6 @@ public class Stock {
     private final int promotion;
 
     public Stock(final int normal, final int promotion) {
-        validateStockQuantity(normal);
-        validateStockQuantity(promotion);
         this.normal = normal;
         this.promotion = promotion;
     }
@@ -19,12 +17,6 @@ public class Stock {
         }
         int remain = quantity - stock.promotion;
         return new Stock(stock.normal - remain, NONE);
-    }
-
-    private void validateStockQuantity(final int quantity) {
-        if (quantity < NONE) {
-            throw new IllegalStateException("재고 수량 정보가 잘못 됐습니다.");
-        }
     }
 
     public boolean isEnough(final int quantity) {

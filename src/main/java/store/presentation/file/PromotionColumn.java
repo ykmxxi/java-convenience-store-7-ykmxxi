@@ -1,7 +1,6 @@
 package store.presentation.file;
 
 import java.util.Arrays;
-import java.util.List;
 
 public enum PromotionColumn {
 
@@ -17,19 +16,6 @@ public enum PromotionColumn {
     PromotionColumn(final String name, final int index) {
         this.name = name;
         this.index = index;
-    }
-
-    public static void validateColumnNameLine(final List<String> columnNameLine) {
-        List<String> promotionColumns = Arrays.stream(PromotionColumn.values())
-                .map(promotionColumn -> promotionColumn.name)
-                .toList();
-        if (isDifferent(promotionColumns, columnNameLine)) {
-            throw new IllegalStateException("데이터 파일에 누락된 컬럼이 존재합니다.");
-        }
-    }
-
-    private static boolean isDifferent(final List<String> promotionColumn, final List<String> columnNameLine) {
-        return !promotionColumn.equals(columnNameLine);
     }
 
     public static void validateTupleColumnCount(final int tupleColumnCount) {
