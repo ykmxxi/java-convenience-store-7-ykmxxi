@@ -40,7 +40,7 @@ public enum PromotionType {
         return Arrays.stream(PromotionType.values())
                 .filter(promotionType -> promotionType.name.equals(name))
                 .findAny()
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 행사입니다."));
+                .get();
     }
 
     public int calculateQuantityForGetFree() {

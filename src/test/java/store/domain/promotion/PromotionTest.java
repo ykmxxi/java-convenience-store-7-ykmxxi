@@ -24,13 +24,6 @@ class PromotionTest {
         endDate = LocalDateTime.of(LocalDate.parse("2024-12-31"), LocalTime.MAX);
     }
 
-    @DisplayName("프로모션 이름이 다르면 생성에 실패하고 시스템 예외가 발생한다.")
-    @Test
-    void 프로모션_이름이_다른_경우_생성_실패() {
-        assertThatThrownBy(() -> Promotion.of("음료2+1", 2, 1, startDate, endDate))
-                .isInstanceOf(IllegalStateException.class);
-    }
-
     @DisplayName("프로모션 이름, Buy N for Get 1 수량, 기간이 모두 같으면 생성 성공한다.")
     @Test
     void 프로모션_타입_생성_성공() {

@@ -21,7 +21,7 @@ public enum ProductColumn {
         ProductColumn productColumn = Arrays.stream(ProductColumn.values())
                 .filter(column -> column.name.equals(columnName))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 컬럼입니다."));
+                .get();
         return productColumn.index;
     }
 

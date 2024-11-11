@@ -18,17 +18,11 @@ public enum PromotionColumn {
         this.index = index;
     }
 
-    public static void validateTupleColumnCount(final int tupleColumnCount) {
-        if (PromotionColumn.values().length != tupleColumnCount) {
-            throw new IllegalStateException("데이터 파일에 누락된 정보가 존재합니다.");
-        }
-    }
-
     public static int index(final String columnName) {
         PromotionColumn promotionColumn = Arrays.stream(PromotionColumn.values())
                 .filter(column -> column.name.equals(columnName))
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 컬럼입니다."));
+                .get();
         return promotionColumn.index;
     }
 
