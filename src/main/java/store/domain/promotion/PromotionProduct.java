@@ -14,10 +14,6 @@ public class PromotionProduct {
         this.promotion = promotion;
     }
 
-    public int calculatePromotionProductCount(final int promotionCount) {
-        return promotion.promotionType().calculateQuantityForGetFree() * promotionCount;
-    }
-
     public Promotion promotion() {
         return promotion;
     }
