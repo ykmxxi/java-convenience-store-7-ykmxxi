@@ -24,18 +24,20 @@ public class Order {
         return new Order(OrderType.NORMAL_ORDER, product, quantity, 0);
     }
 
-    public static Order promotionStockShortage(final Product product, final int quantity, final int promotionCount) {
-        return new Order(OrderType.PROMOTION_STOCK_SHORTAGE_ORDER, product, quantity, promotionCount);
-    }
-
-    public static Order promotionOrderQuantityShortage(final Product product, final int quantity,
-                                                       final int promotionCount
-    ) {
+    public static Order quantityShortage(final Product product, final int quantity, final int promotionCount) {
         return new Order(OrderType.PROMOTION_ORDER_QUANTITY_SHORTAGE_ORDER, product, quantity, promotionCount);
     }
 
+    public static Order stockShortage(final Product product, final int quantity, final int promotionCount) {
+        return new Order(OrderType.PROMOTION_STOCK_SHORTAGE_ORDER, product, quantity, promotionCount);
+    }
+
+    public static Order canReceiveFree(final Product product, final int quantity, final int promotionCount) {
+        return new Order(OrderType.CAN_RECEIVE_FREE_ORDER, product, quantity, promotionCount);
+    }
+
     public static Order reOrder(final Order order, final int newQuantity) {
-        if (order.orderType.isPromotionOrderQuantityShortage()) {
+        if (order.orderType.isCanReceiveFreeOrder()) {
             return Order.promotion(order.product, order.quantity() + newQuantity, order.promotionCount + newQuantity);
         }
         return Order.promotion(order.product, order.quantity - newQuantity, order.promotionCount);

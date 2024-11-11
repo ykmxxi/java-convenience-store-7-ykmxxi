@@ -38,8 +38,12 @@ public class Promotion {
         return maxPromotionCount * quantityForGetFree;
     }
 
-    public boolean isUnderMinimumQuantity(final int orderQuantity) {
-        return orderQuantity < minimumQuantity();
+    public boolean isNeedOneMore(final int orderQuantity) {
+        return orderQuantity == (minimumQuantity() - 1);
+    }
+
+    public boolean isOrderQuantityShortage(final int orderQuantity) {
+        return promotionType.isOrderQuantityShortage(orderQuantity);
     }
 
     public int minimumQuantity() {

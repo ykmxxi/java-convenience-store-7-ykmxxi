@@ -64,6 +64,10 @@ public enum PromotionType {
         return quantityOfBuy + quantityOfFree;
     }
 
+    public boolean isOrderQuantityShortage(final int orderQuantity) {
+            return (orderQuantity % this.calculateQuantityForGetFree() ) == 1;
+    }
+
     public String getName() {
         return name;
     }

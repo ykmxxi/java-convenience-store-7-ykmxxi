@@ -5,7 +5,8 @@ import store.domain.sales.OrderType;
 public enum ReOrderResponseType {
 
     PROMOTION_STOCK_SHORTAGE("프로모션 재고 초과"),
-    PROMOTION_ORDER_QUANTITY_SHORTAGE("프로모션 혜택 수량 부족");
+    PROMOTION_ORDER_QUANTITY_SHORTAGE("프로모션 혜택 수량 부족"),
+    CAN_RECEIVE_FREE("1개 무료 증정 가능");
 
     private final String reOrderResponseType;
 
@@ -14,7 +15,7 @@ public enum ReOrderResponseType {
     }
 
     public static ReOrderResponseType from(final OrderType orderType) {
-        if (orderType.isPromotionOrderQuantityShortage()) {
+        if (orderType.isCanReceiveFreeOrder()) {
             return PROMOTION_ORDER_QUANTITY_SHORTAGE;
         }
         return PROMOTION_STOCK_SHORTAGE;
@@ -26,6 +27,10 @@ public enum ReOrderResponseType {
 
     public boolean isPromotionOrderQuantityShortage() {
         return this.equals(PROMOTION_ORDER_QUANTITY_SHORTAGE);
+    }
+
+    public boolean isCanReceiveFree() {
+        return this.equals(CAN_RECEIVE_FREE);
     }
 
 }

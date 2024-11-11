@@ -44,17 +44,27 @@ public class SalesService {
     }
 
     private boolean isWantDecreaseNonPromotionProduct(final ReOrderRequest reOrderRequest) {
-        return reOrderRequest.reOrderResponseType().isPromotionStockShortage() && !reOrderRequest.yesOrNo();
+        return reOrderRequest.reOrderResponseType().isPromotionStockShortage() && !reOrderRequest.yesOrNo() ||
+                reOrderRequest.reOrderResponseType().isPromotionOrderQuantityShortage() && !reOrderRequest.yesOrNo();
     }
 
     private boolean isWantFreePromotionProduct(final ReOrderRequest reOrderRequest) {
-        return reOrderRequest.reOrderResponseType().isPromotionOrderQuantityShortage() && reOrderRequest.yesOrNo();
+        return reOrderRequest.reOrderResponseType().isCanReceiveFree() && reOrderRequest.yesOrNo();
     }
 
     private void updateOrders(final ReOrderRequest reOrderRequest) {
         Order order = orders.get(reOrderRequest.orderNumber());
         Order newOrder = Order.reOrder(order, reOrderRequest.reOrderQuantity());
-        orders.set(reOrderRequest.orderNumber(), newOrder);
+    }
+
+    private void addPromotionFree(final int orderNumber) {
+        Order order = orders.get(orderNumber);
+        orders.set(orderNumber, Order.reOrder(order, order.quantity() + 1));
+    }
+
+    private void removeNormalProduct(final int orderNumber, final int removeQuantity) {
+        Order order = orders.get(orderNumber);
+        orders.set(orderNumber, Order.reOrder(order, order.quantity() - removeQuantity));
     }
 
     private List<ReOrderResponse> toReOrderResponses() {
@@ -83,23 +93,19 @@ public class SalesService {
     }
 
 
-    private void addPromotionFree(final int orderNumber) {
-        Order order = orders.get(orderNumber);
-        orders.set(orderNumber, Order.reOrder(order, order.quantity() + 1));
-    }
-
-    private void removeNormalProduct(final int orderNumber, final int removeQuantity) {
-        Order order = orders.get(orderNumber);
-        orders.set(orderNumber, Order.reOrder(order, order.quantity() - removeQuantity));
-    }
-
     private Order createOrder(final Product product, final int orderQuantity, final LocalDateTime createdAt) {
         validateOrderQuantity(product, orderQuantity);
         if (inventoryService.canReceivePromotion(product, createdAt)) {
-            int promotionCount = inventoryService.calculatePromotionCount(product, orderQuantity);
-            return createPromotionTypeOrder(product, orderQuantity, promotionCount);
+            if (inventoryService.isOrderQuantityShortage(product, orderQuantity)) {
+                return Order.quantityShortage(product, orderQuantity, getPromotionCount(product, orderQuantity));
+            }
+            return createPromotionTypeOrder(product, orderQuantity, getPromotionCount(product, orderQuantity));
         }
         return Order.normal(product, orderQuantity);
+    }
+
+    private int getPromotionCount(final Product product, final int orderQuantity) {
+        return inventoryService.calculatePromotionCount(product, orderQuantity);
     }
 
     private void validateOrderQuantity(final Product product, final int orderQuantity) {
@@ -110,10 +116,10 @@ public class SalesService {
 
     private Order createPromotionTypeOrder(final Product product, final int orderQuantity, final int promotionCount) {
         if (inventoryService.isPromotionStockShortage(product, orderQuantity)) {
-            return Order.promotionStockShortage(product, orderQuantity, promotionCount);
+            return Order.stockShortage(product, orderQuantity, promotionCount);
         }
-        if (inventoryService.isPromotionOrderQuantityShortage(product, orderQuantity)) {
-            return Order.promotionOrderQuantityShortage(product, orderQuantity, promotionCount);
+        if (inventoryService.isCanReceiveFree(product, orderQuantity, promotionCount)) {
+            return Order.canReceiveFree(product, orderQuantity, promotionCount);
         }
         return Order.promotion(product, orderQuantity, promotionCount);
     }
