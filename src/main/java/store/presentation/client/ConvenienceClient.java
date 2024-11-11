@@ -33,22 +33,26 @@ public class ConvenienceClient {
 
     public void run() {
         try {
-            startConvenienceStore();
+            while (true) {
+                startConvenienceStore();
+                String restartInput = isRestart();
+                if (!Command.from(restartInput)) {
+                    break;
+                }
+            }
         } finally {
             Console.close();
         }
     }
 
     private void startConvenienceStore() {
-        do {
-            printWelcomeMessageWithConvenienceStoreInfo();
+        printWelcomeMessageWithConvenienceStoreInfo();
 
-            List<ReOrderResponse> reOrderResponses = order();
-            reOrder(reOrderResponses);
-            
-            PayResponse payResponses = pay();
-            outputView.printReceipt(payResponses);
-        } while (isRestart());
+        List<ReOrderResponse> reOrderResponses = order();
+        reOrder(reOrderResponses);
+
+        PayResponse payResponses = pay();
+        outputView.printReceipt(payResponses);
     }
 
     private PayResponse pay() {
@@ -119,11 +123,10 @@ public class ConvenienceClient {
         }
     }
 
-    private boolean isRestart() {
+    private String isRestart() {
         while (true) {
             try {
-                String rePurchaseInput = inputView.readRePurchase();
-                return Command.from(rePurchaseInput);
+                return inputView.readRePurchase();
             } catch (IllegalArgumentException e) {
                 outputView.printError(e.getMessage());
             }

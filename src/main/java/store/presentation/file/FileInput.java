@@ -1,32 +1,29 @@
 package store.presentation.file;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Stream;
 
 public class FileInput {
 
     private static final String ROOT_PATH = "src/main/resources/";
-    private static final String PROPERTY_FILE = "application.properties";
-    private static final String PRODUCT_FILE = "product.file";
-    private static final String PROMOTION_FILE = "promotion.file";
+    private static final String PRODUCT_FILE = "products.md";
+    private static final String PROMOTION_FILE = "promotions.md";
     private static final int COLUMN_NAME_LINE = 1;
 
     public List<List<String>> readProductTuples() {
-        List<List<String>> productTuples = readTuples(getFilePath(PRODUCT_FILE));
+        List<List<String>> productTuples = readTuples(ROOT_PATH + PRODUCT_FILE);
         return productTuples.stream()
                 .skip(COLUMN_NAME_LINE)
                 .toList();
     }
 
     public List<List<String>> readPromotionTuples() {
-        List<List<String>> promotionTuples = readTuples(getFilePath(PROMOTION_FILE));
+        List<List<String>> promotionTuples = readTuples(ROOT_PATH + PROMOTION_FILE);
         return promotionTuples.stream()
                 .skip(COLUMN_NAME_LINE)
                 .toList();
@@ -35,16 +32,6 @@ public class FileInput {
     private List<List<String>> readTuples(final String filePath) {
         List<String> fileLines = readFileLines(filePath);
         return toTuples(fileLines);
-    }
-
-    private String getFilePath(final String propertyKey) {
-        Properties properties = new Properties();
-        try (FileInputStream fileInputStream = new FileInputStream(ROOT_PATH + PROPERTY_FILE)) {
-            properties.load(fileInputStream);
-            return ROOT_PATH + properties.get(propertyKey);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private List<String> readFileLines(final String promotionFilePath) {
