@@ -111,7 +111,8 @@ public class InventoryService {
     }
 
     public boolean isCanReceiveFree(final Product product, final int orderQuantity,
-                                    final int promotionCount) {
+                                    final int promotionCount
+    ) {
         PromotionProduct promotionProduct = promotionProducts.find(product);
         Promotion promotion = promotions.find(promotionProduct.promotion().promotionType());
         int remain = orderQuantity - (promotion.minimumQuantity() * promotionCount);

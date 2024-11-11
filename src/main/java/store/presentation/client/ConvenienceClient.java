@@ -3,7 +3,6 @@ package store.presentation.client;
 import java.util.ArrayList;
 import java.util.List;
 
-import camp.nextstep.edu.missionutils.Console;
 import camp.nextstep.edu.missionutils.DateTimes;
 import store.presentation.client.inventory.InventoryClient;
 import store.presentation.client.sales.SalesClient;
@@ -32,17 +31,13 @@ public class ConvenienceClient {
     }
 
     public void run() {
-        try {
-            while (true) {
-                startConvenienceStore();
-                String restartInput = isRestart();
-                if (!Command.from(restartInput)) {
-                    break;
-                }
-            }
-        } finally {
-            Console.close();
-        }
+        do {
+            printWelcomeMessageWithConvenienceStoreInfo();
+            List<ReOrderResponse> reOrderResponses = order();
+            reOrder(reOrderResponses);
+            PayResponse payResponses = pay();
+            outputView.printReceipt(payResponses);
+        } while (isRestart());
     }
 
     private void startConvenienceStore() {
@@ -123,10 +118,11 @@ public class ConvenienceClient {
         }
     }
 
-    private String isRestart() {
+    private boolean isRestart() {
         while (true) {
             try {
-                return inputView.readRePurchase();
+                String rePurchaseInput = inputView.readRePurchase();
+                return Command.from(rePurchaseInput);
             } catch (IllegalArgumentException e) {
                 outputView.printError(e.getMessage());
             }

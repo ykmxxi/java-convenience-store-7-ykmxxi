@@ -94,8 +94,7 @@ public class OutputView {
     }
 
     private void appendAmountAndDiscountInformation(final PayResponse response, final StringBuilder stringBuilder) {
-        stringBuilder.append("====================================")
-                .append(System.lineSeparator())
+        stringBuilder.append("====================================").append(System.lineSeparator())
                 .append(String.format("%-15s %5s %12s" + System.lineSeparator(), "총구매액",
                         NUMBER_FORMAT.format(response.totalAmountResponse().totalQuantity()),
                         NUMBER_FORMAT.format(response.totalAmountResponse().totalAmount())))

@@ -27,7 +27,8 @@ public class StorageRequestMapper {
     }
 
     public Iterable<ProductStock> toProductStocks(final List<ProductStockStorageRequest> requests,
-                                                  final Products products) {
+                                                  final Products products
+    ) {
         return requests.stream()
                 .map(request -> {
                     Product product = products.find(Name.from(request.name()));
