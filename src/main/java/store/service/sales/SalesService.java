@@ -55,16 +55,7 @@ public class SalesService {
     private void updateOrders(final ReOrderRequest reOrderRequest) {
         Order order = orders.get(reOrderRequest.orderNumber());
         Order newOrder = Order.reOrder(order, reOrderRequest.reOrderQuantity());
-    }
-
-    private void addPromotionFree(final int orderNumber) {
-        Order order = orders.get(orderNumber);
-        orders.set(orderNumber, Order.reOrder(order, order.quantity() + 1));
-    }
-
-    private void removeNormalProduct(final int orderNumber, final int removeQuantity) {
-        Order order = orders.get(orderNumber);
-        orders.set(orderNumber, Order.reOrder(order, order.quantity() - removeQuantity));
+        orders.set(reOrderRequest.orderNumber(), newOrder);
     }
 
     private List<ReOrderResponse> toReOrderResponses() {
