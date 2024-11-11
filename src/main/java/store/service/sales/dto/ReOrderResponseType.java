@@ -16,6 +16,9 @@ public enum ReOrderResponseType {
 
     public static ReOrderResponseType from(final OrderType orderType) {
         if (orderType.isCanReceiveFreeOrder()) {
+            return CAN_RECEIVE_FREE;
+        }
+        if (orderType.isPromotionOrderQuantityOrder()) {
             return PROMOTION_ORDER_QUANTITY_SHORTAGE;
         }
         return PROMOTION_STOCK_SHORTAGE;

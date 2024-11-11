@@ -102,8 +102,11 @@ public class InventoryService {
         return productStorage.hasEnoughTotalStock(product, orderQuantity);
     }
 
-    public boolean isPromotionStockShortage(final Product product, final int orderQuantity) {
-        return productStorage.isPromotionStockShortage(product, orderQuantity);
+    public boolean isPromotionStockShortage(final Product product, final int orderQuantity, final int promotionCount) {
+        if (isCanReceiveFree(product, orderQuantity, promotionCount)) {
+            int maxPromotionCount = promotionCount + 1;
+        }
+        return productStorage.isPromotionStockShortage(product, orderQuantity + 1);
     }
 
     public boolean isCanReceiveFree(final Product product, final int orderQuantity,
@@ -130,6 +133,9 @@ public class InventoryService {
 
     public boolean isOrderQuantityShortage(final Product product, final int orderQuantity) {
         PromotionProduct promotionProduct = promotionProducts.find(product);
+        if (orderQuantity == productStorage.currentPromotionStockQuantity(product)) {
+            return false;
+        }
         return promotionProduct.promotion().isOrderQuantityShortage(orderQuantity);
     }
 

@@ -43,13 +43,13 @@ public class SalesService {
         }
     }
 
+    private boolean isWantFreePromotionProduct(final ReOrderRequest reOrderRequest) {
+        return reOrderRequest.reOrderResponseType().isCanReceiveFree() && reOrderRequest.yesOrNo();
+    }
+
     private boolean isWantDecreaseNonPromotionProduct(final ReOrderRequest reOrderRequest) {
         return reOrderRequest.reOrderResponseType().isPromotionStockShortage() && !reOrderRequest.yesOrNo() ||
                 reOrderRequest.reOrderResponseType().isPromotionOrderQuantityShortage() && !reOrderRequest.yesOrNo();
-    }
-
-    private boolean isWantFreePromotionProduct(final ReOrderRequest reOrderRequest) {
-        return reOrderRequest.reOrderResponseType().isCanReceiveFree() && reOrderRequest.yesOrNo();
     }
 
     private void updateOrders(final ReOrderRequest reOrderRequest) {
@@ -71,7 +71,7 @@ public class SalesService {
 
     private ReOrderResponse toReOrderResponse(final Order order, final int orderNumber) {
         ReOrderResponseType reOrderResponseType = ReOrderResponseType.from(order.orderType());
-        if (reOrderResponseType.isPromotionStockShortage()) {
+        if (reOrderResponseType.isPromotionStockShortage() || reOrderResponseType.isPromotionOrderQuantityShortage()) {
             int reOrderQuantity = calculatePromotionStockShortageQuantity(order);
             return new ReOrderResponse(orderNumber, reOrderResponseType, order.productName(), reOrderQuantity);
         }
@@ -82,7 +82,6 @@ public class SalesService {
         return order.quantity() -
                 inventoryService.calculatePromotionQuantity(order.product(), order.promotionCount());
     }
-
 
     private Order createOrder(final Product product, final int orderQuantity, final LocalDateTime createdAt) {
         validateOrderQuantity(product, orderQuantity);
@@ -106,7 +105,7 @@ public class SalesService {
     }
 
     private Order createPromotionTypeOrder(final Product product, final int orderQuantity, final int promotionCount) {
-        if (inventoryService.isPromotionStockShortage(product, orderQuantity)) {
+        if (inventoryService.isPromotionStockShortage(product, orderQuantity, promotionCount)) {
             return Order.stockShortage(product, orderQuantity, promotionCount);
         }
         if (inventoryService.isCanReceiveFree(product, orderQuantity, promotionCount)) {

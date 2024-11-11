@@ -65,7 +65,10 @@ public enum PromotionType {
     }
 
     public boolean isOrderQuantityShortage(final int orderQuantity) {
-            return (orderQuantity % this.calculateQuantityForGetFree() ) == 1;
+        if (this.equals(CARBONATED_TWO_PLUS_ONE)) {
+            return (orderQuantity % this.calculateQuantityForGetFree()) == 1;
+        }
+        return false;
     }
 
     public String getName() {

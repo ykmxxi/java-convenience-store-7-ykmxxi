@@ -62,7 +62,9 @@ public class ConvenienceClient {
     }
 
     private String readReOrder(final ReOrderResponse reOrderResponse) {
-        if (reOrderResponse.reOrderResponseType().isPromotionStockShortage()) {
+        if (reOrderResponse.reOrderResponseType().isPromotionStockShortage() ||
+                reOrderResponse.reOrderResponseType().isPromotionOrderQuantityShortage()
+        ) {
             return readWithoutPromotionOrder(reOrderResponse);
         }
         return readPromotionFreeCommand(reOrderResponse);

@@ -27,4 +27,7 @@ public enum OrderType {
         return this.equals(CAN_RECEIVE_FREE_ORDER);
     }
 
+    public boolean isPromotionOrderQuantityOrder() {
+        return this.equals(PROMOTION_ORDER_QUANTITY_SHORTAGE_ORDER);
+    }
 }
