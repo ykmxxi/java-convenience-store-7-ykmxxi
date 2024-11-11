@@ -1,4 +1,4 @@
-package store.domain.inventory;
+package store.domain.promotion;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,4 +67,5 @@ public enum PromotionType {
     public String getName() {
         return name;
     }
+
 }

@@ -1,4 +1,4 @@
-package store.domain.inventory;
+package store.domain.product;
 
 import java.util.Objects;
 

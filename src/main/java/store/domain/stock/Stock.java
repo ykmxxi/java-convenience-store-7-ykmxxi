@@ -1,4 +1,4 @@
-package store.domain.inventory;
+package store.domain.stock;
 
 public class Stock {
 
@@ -25,6 +25,10 @@ public class Stock {
 
     public boolean isEnoughPromotionStock(final int quantity) {
         return promotion >= quantity;
+    }
+
+    public boolean isOverPromotionStock(final int quantity) {
+        return promotion < quantity;
     }
 
     public int normal() {

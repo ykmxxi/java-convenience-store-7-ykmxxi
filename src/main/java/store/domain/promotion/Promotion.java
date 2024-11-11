@@ -1,4 +1,4 @@
-package store.domain.inventory;
+package store.domain.promotion;
 
 import java.time.LocalDateTime;
 
@@ -26,22 +26,24 @@ public class Promotion {
     }
 
     public int calculatePromotionCount(final int stockQuantity, final int orderQuantity) {
-        int quantityForGetFree = promotionType.calculateQuantityForGetFree();
+        int quantityForGetFree = minimumQuantity();
         int maxPromotionCount = stockQuantity / quantityForGetFree;
-        if (orderQuantity < (maxPromotionCount * quantityForGetFree)) {
+        if (orderQuantity <= quantityOfMaxPromotionCount(maxPromotionCount, quantityForGetFree)) {
             return orderQuantity / quantityForGetFree;
         }
         return maxPromotionCount;
     }
 
-    public boolean isShortage(final int promotionCount, final int orderQuantity) {
-        int quantityForGetFree = promotionType.calculateQuantityForGetFree();
-        return quantityForGetFree + (quantityForGetFree * promotionCount) > orderQuantity;
+    private int quantityOfMaxPromotionCount(final int maxPromotionCount, final int quantityForGetFree) {
+        return maxPromotionCount * quantityForGetFree;
     }
 
-    public boolean isOver(final int promotionCount, final int orderQuantity) {
-        int quantityForGetFree = promotionType.calculateQuantityForGetFree();
-        return quantityForGetFree * promotionCount < orderQuantity;
+    public boolean isUnderMinimumQuantity(final int orderQuantity) {
+        return orderQuantity < minimumQuantity();
+    }
+
+    public int minimumQuantity() {
+        return this.promotionType.calculateQuantityForGetFree();
     }
 
     public PromotionType promotionType() {

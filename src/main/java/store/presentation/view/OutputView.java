@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.StringJoiner;
 
 import store.service.inventory.dto.ProductResponse;
+import store.service.sales.dto.ReOrderResponse;
 
 public class OutputView {
 

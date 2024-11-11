@@ -17,16 +17,16 @@ public class InputView {
         return orderInput;
     }
 
-    public String readPromotionFreeCommand(final String productName) {
+    public String readPromotionFreeCommand(final String productName, final int reOrderQuantity) {
         System.out.println();
-        System.out.println("현재 " + productName + "은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
+        System.out.println("현재 " + productName + "은(는)" + reOrderQuantity + "개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)");
         return readCommand();
     }
 
-    public String readWithoutPromotionCommand(final String productName, final int shortageQuantity) {
+    public String readWithoutPromotionCommand(final String productName, final int reOrderQuantity) {
         System.out.println();
         System.out.println(
-                "현재 " + productName + " " + shortageQuantity + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
+                "현재 " + productName + " " + reOrderQuantity + "개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)");
         return readCommand();
     }
 

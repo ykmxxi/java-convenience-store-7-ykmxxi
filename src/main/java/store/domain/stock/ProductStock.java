@@ -1,4 +1,6 @@
-package store.domain.inventory;
+package store.domain.stock;
+
+import store.domain.product.Product;
 
 public class ProductStock {
 
@@ -20,6 +22,10 @@ public class ProductStock {
 
     public boolean hasEnoughPromotionStock(final int quantity) {
         return stock.isEnoughPromotionStock(quantity);
+    }
+
+    public boolean isOverPromotionStock(final int quantity) {
+        return stock.isOverPromotionStock(quantity);
     }
 
     public int promotionQuantity() {

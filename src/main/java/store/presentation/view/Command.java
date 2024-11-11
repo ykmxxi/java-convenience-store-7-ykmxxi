@@ -11,13 +11,9 @@ public enum Command {
         this.yesOrNo = yesOrNo;
     }
 
-    public static boolean isYes(final String commandInput) {
+    public static boolean from(final String commandInput) {
         return Command.valueOf(commandInput.toUpperCase())
                 .yesOrNo;
     }
 
-    public static boolean isNo(final String commandInput) {
-        return Command.valueOf(commandInput.toUpperCase())
-                .yesOrNo;
-    }
 }

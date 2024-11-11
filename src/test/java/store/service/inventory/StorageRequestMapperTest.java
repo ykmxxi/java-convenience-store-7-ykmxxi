@@ -11,14 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import store.domain.inventory.Name;
-import store.domain.inventory.Product;
-import store.domain.inventory.ProductStock;
-import store.domain.inventory.Promotion;
+import store.domain.product.Name;
+import store.domain.product.Product;
+import store.domain.product.Products;
+import store.domain.promotion.Promotion;
+import store.domain.stock.ProductStock;
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
-import store.repository.Repository;
 
 class StorageRequestMapperTest {
 
@@ -41,9 +41,11 @@ class StorageRequestMapperTest {
     @DisplayName("상품 재고 저장 요청을 상품 재고 도메인 타입으로 변환한다.")
     @Test
     void 상품_재고_저장_요청을_상품_도메인으로_변환() {
+        Products products = new Products();
+        products.saveAll(List.of(Product.storage("콜라", 1000L)));
         List<ProductStockStorageRequest> requests = List.of(new ProductStockStorageRequest("콜라", 10, 10));
 
-        assertThat(storageRequestMapper.toProductStocks(requests, new ProductRepositoryStub()))
+                assertThat(storageRequestMapper.toProductStocks(requests, products))
                 .hasOnlyElementsOfType(ProductStock.class);
     }
 
@@ -58,30 +60,6 @@ class StorageRequestMapperTest {
 
         assertThat(storageRequestMapper.toPromotions(requests))
                 .hasOnlyElementsOfType(Promotion.class);
-    }
-
-    static class ProductRepositoryStub implements Repository<Product, Name> {
-
-        @Override
-        public boolean exists(final Name name) {
-            return true;
-        }
-
-        @Override
-        public Product find(final Name name) {
-            return Product.storage("콜라", 1_000L);
-        }
-
-        @Override
-        public List<Product> findAll() {
-            return List.of();
-        }
-
-        @Override
-        public List<Product> saveAll(final Iterable<Product> entities) {
-            return List.of(Product.storage("콜라", 1_000L));
-        }
-
     }
 
 }

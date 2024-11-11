@@ -4,11 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import store.domain.sales.MembershipDiscount;
 import store.presentation.client.sales.dto.OrderRequest;
+import store.presentation.client.sales.dto.ReOrderRequest;
+import store.presentation.view.Command;
 import store.service.sales.SalesService;
-import store.service.sales.dto.OrderResponse;
+import store.service.sales.dto.ReOrderResponse;
 
 public class SalesClient {
 
@@ -20,29 +23,19 @@ public class SalesClient {
         this.membershipDiscount = new MembershipDiscount();
     }
 
-    public List<OrderResponse> order(final String orderInput, final LocalDateTime orderCreatedAt) {
+    public List<ReOrderResponse> order(final String orderInput, final LocalDateTime orderCreatedAt) {
         List<OrderRequest> orderRequests = toOrderRequests(orderInput, orderCreatedAt);
-        List<OrderResponse> orderResponses = new ArrayList<>();
-        for (OrderRequest orderRequest : orderRequests) {
-            orderResponses.add(salesService.order(orderRequest));
+        return salesService.order(orderRequests);
+    }
+
+    public void reOrder(final List<String> reOrderCommands, final List<ReOrderResponse> reOrderResponses) {
+        List<ReOrderRequest> reOrderRequests = new ArrayList<>();
+        for (int index = 0; index < reOrderCommands.size(); index++) {
+            boolean yesOrNo = Command.from(reOrderCommands.get(index));
+            ReOrderResponse reOrderResponse = reOrderResponses.get(index);
+            reOrderRequests.add(toReOrderRequest(yesOrNo, reOrderResponse));
         }
-        return orderResponses;
-    }
-
-    public void addPromotionFree(final int orderNumber) {
-        salesService.addPromotionFree(orderNumber);
-    }
-
-    public void removeNormalProduct(final int orderNumber, final int removeQuantity) {
-        salesService.removeNormalProduct(orderNumber, removeQuantity);
-    }
-
-    public List<OrderResponse> reOrder() {
-        return salesService.reOrder();
-    }
-
-    public String applyMemberShipDiscount(final List<OrderResponse> orderResponses) {
-        return Long.toString(salesService.applyMembershipDiscount(orderResponses));
+        salesService.reOrder(reOrderRequests);
     }
 
     private List<OrderRequest> toOrderRequests(final String orderInput, final LocalDateTime orderCreatedAt) {
@@ -66,6 +59,11 @@ public class SalesClient {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("너무 큰 수량을 입력했습니다.");
         }
+    }
+
+    private ReOrderRequest toReOrderRequest(final boolean yesOrNo, final ReOrderResponse reOrderResponse) {
+        return new ReOrderRequest(yesOrNo, reOrderResponse.orderNumber(),
+                reOrderResponse.reOrderResponseType(), reOrderResponse.reOrderQuantity());
     }
 
 }

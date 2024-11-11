@@ -1,6 +1,8 @@
-package store.domain.inventory;
+package store.domain.promotion;
 
 import java.util.Objects;
+
+import store.domain.product.Product;
 
 public class PromotionProduct {
 
@@ -10,14 +12,6 @@ public class PromotionProduct {
     public PromotionProduct(final Product product, final Promotion promotion) {
         this.product = product;
         this.promotion = promotion;
-    }
-
-    public boolean isShortageOrder(final int promotionCount, final int orderQuantity) {
-        return promotion.isShortage(promotionCount, orderQuantity);
-    }
-
-    public boolean isOverOrder(final int promotionCount, final int orderQuantity) {
-        return promotion.isOver(promotionCount, orderQuantity);
     }
 
     public int calculatePromotionProductCount(final int promotionCount) {

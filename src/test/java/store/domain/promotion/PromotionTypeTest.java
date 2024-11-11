@@ -1,4 +1,4 @@
-package store.domain.inventory;
+package store.domain.promotion;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

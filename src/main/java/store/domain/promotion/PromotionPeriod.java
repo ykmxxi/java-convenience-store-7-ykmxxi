@@ -1,4 +1,4 @@
-package store.domain.inventory;
+package store.domain.promotion;
 
 import java.time.LocalDateTime;
 import java.util.Objects;

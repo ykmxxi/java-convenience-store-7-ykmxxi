@@ -2,18 +2,19 @@ package store.service.inventory;
 
 import java.util.List;
 
-import store.domain.inventory.Name;
-import store.domain.inventory.Product;
-import store.domain.inventory.ProductStock;
-import store.domain.inventory.Promotion;
-import store.domain.inventory.PromotionProduct;
-import store.domain.inventory.PromotionType;
-import store.domain.inventory.Stock;
+import store.domain.product.Name;
+import store.domain.product.Product;
+import store.domain.product.Products;
+import store.domain.promotion.Promotion;
+import store.domain.promotion.PromotionProduct;
+import store.domain.promotion.PromotionType;
+import store.domain.promotion.Promotions;
+import store.domain.stock.ProductStock;
+import store.domain.stock.Stock;
 import store.presentation.client.inventory.dto.ProductStockStorageRequest;
 import store.presentation.client.inventory.dto.ProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionProductStorageRequest;
 import store.presentation.client.inventory.dto.PromotionStorageRequest;
-import store.repository.Repository;
 
 public class StorageRequestMapper {
 
@@ -26,11 +27,10 @@ public class StorageRequestMapper {
     }
 
     public Iterable<ProductStock> toProductStocks(final List<ProductStockStorageRequest> requests,
-                                                  final Repository<Product, Name> productRepository
-    ) {
+                                                  final Products products) {
         return requests.stream()
                 .map(request -> {
-                    Product product = productRepository.find(Name.from(request.name()));
+                    Product product = products.find(Name.from(request.name()));
                     return toProductStock(product, request);
                 })
                 .toList();
@@ -51,21 +51,19 @@ public class StorageRequestMapper {
 
     public Iterable<PromotionProduct> toPromotionProducts(
             final List<PromotionProductStorageRequest> productStorageRequests,
-            final Repository<Promotion, PromotionType> promotionRepository,
-            final Repository<Product, Name> productRepository
+            final Products products, final Promotions promotions
     ) {
         return productStorageRequests.stream()
                 .map(request -> toPromotionProduct(request.name(), request.promotion(),
-                        productRepository, promotionRepository)
+                        products, promotions)
                 ).toList();
     }
 
     private PromotionProduct toPromotionProduct(final String productName, final String promotionName,
-                                                final Repository<Product, Name> productRepository,
-                                                final Repository<Promotion, PromotionType> promotionRepository
+                                                final Products products, final Promotions promotions
     ) {
-        Product product = productRepository.find(Name.from(productName));
-        Promotion promotion = promotionRepository.find(PromotionType.from(promotionName));
+        Product product = products.find(Name.from(productName));
+        Promotion promotion = promotions.find(PromotionType.from(promotionName));
         return new PromotionProduct(product, promotion);
     }
 

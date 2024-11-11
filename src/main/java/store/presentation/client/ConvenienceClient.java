@@ -1,15 +1,15 @@
 package store.presentation.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import store.presentation.client.inventory.InventoryClient;
 import store.presentation.client.sales.SalesClient;
-import store.presentation.view.Command;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 import store.service.inventory.dto.ProductResponse;
-import store.service.sales.dto.OrderResponse;
+import store.service.sales.dto.ReOrderResponse;
 
 public class ConvenienceClient {
 
@@ -31,11 +31,8 @@ public class ConvenienceClient {
     public void run() {
         printWelcomeMessageWithConvenienceStoreInfo();
 
-        List<OrderResponse> orderResponses = reOrder(order());
-        String membershipDiscountAmount = "";
-        if (applyMembershipDiscount()) {
-            membershipDiscountAmount = salesClient.applyMemberShipDiscount(orderResponses);
-        }
+        List<ReOrderResponse> reOrderResponses = order();
+        reOrder(reOrderResponses);
     }
 
     private void printWelcomeMessageWithConvenienceStoreInfo() {
@@ -44,7 +41,7 @@ public class ConvenienceClient {
         outputView.printProducts(productResponses);
     }
 
-    private List<OrderResponse> order() {
+    private List<ReOrderResponse> order() {
         while (true) {
             try {
                 String orderInput = inputView.readOrder();
@@ -55,58 +52,38 @@ public class ConvenienceClient {
         }
     }
 
-    private List<OrderResponse> reOrder(final List<OrderResponse> orderResponses) {
-        for (OrderResponse orderResponse : orderResponses) {
-            if (orderResponse.orderResponseType().isShortage()) {
-                addPromotionFree(orderResponse);
-            }
-            if (orderResponse.orderResponseType().isOver()) {
-                removeNormalProduct(orderResponse);
-            }
+    private void reOrder(final List<ReOrderResponse> reOrderResponses) {
+        List<String> reOrderCommands = new ArrayList<>();
+        for (ReOrderResponse reOrderResponse : reOrderResponses) {
+            String reOrderCommand = readReOrder(reOrderResponse);
+            reOrderCommands.add(reOrderCommand);
         }
-        return salesClient.reOrder();
+        salesClient.reOrder(reOrderCommands, reOrderResponses);
     }
 
-    private void addPromotionFree(final OrderResponse orderResponse) {
-        String promotionFreeCommand = readPromotionFreeCommand(orderResponse);
-        if (Command.isYes(promotionFreeCommand)) {
-            salesClient.addPromotionFree(orderResponse.orderNumber());
+    private String readReOrder(final ReOrderResponse reOrderResponse) {
+        if (reOrderResponse.reOrderResponseType().isPromotionStockShortage()) {
+            return readWithoutPromotionOrder(reOrderResponse);
         }
+        return readPromotionFreeCommand(reOrderResponse);
     }
 
-    private void removeNormalProduct(final OrderResponse orderResponse) {
-        String withoutPromotionCommand = readWithoutPromotionCommand(orderResponse);
-        if (Command.isNo(withoutPromotionCommand)) {
-            salesClient.removeNormalProduct(orderResponse.orderNumber(), orderResponse.normalProductQuantity());
-        }
-    }
-
-    private String readPromotionFreeCommand(final OrderResponse orderResponse) {
+    private String readWithoutPromotionOrder(final ReOrderResponse reOrderResponse) {
         while (true) {
             try {
-                return inputView.readPromotionFreeCommand(orderResponse.productName());
+                return inputView.readWithoutPromotionCommand(reOrderResponse.productName(),
+                        reOrderResponse.reOrderQuantity());
             } catch (IllegalArgumentException e) {
                 outputView.printError(e.getMessage());
             }
         }
     }
 
-    private String readWithoutPromotionCommand(final OrderResponse orderResponse) {
+    private String readPromotionFreeCommand(final ReOrderResponse reOrderResponse) {
         while (true) {
             try {
-                return inputView.readWithoutPromotionCommand(orderResponse.productName(),
-                        orderResponse.normalProductQuantity());
-            } catch (IllegalArgumentException e) {
-                outputView.printError(e.getMessage());
-            }
-        }
-    }
-
-    private boolean applyMembershipDiscount() {
-        while (true) {
-            try {
-                String membershipDiscountCommand = inputView.readMembershipDiscountCommand();
-                return Command.isYes(membershipDiscountCommand);
+                return inputView.readPromotionFreeCommand(reOrderResponse.productName(),
+                        reOrderResponse.reOrderQuantity());
             } catch (IllegalArgumentException e) {
                 outputView.printError(e.getMessage());
             }

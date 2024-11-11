@@ -4,14 +4,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import store.domain.inventory.Product;
-import store.domain.inventory.ProductStock;
-import store.domain.inventory.PromotionProduct;
+import store.domain.product.Product;
 import store.domain.sales.Order;
 import store.presentation.client.sales.dto.OrderRequest;
+import store.presentation.client.sales.dto.ReOrderRequest;
 import store.service.inventory.InventoryService;
-import store.service.sales.dto.OrderResponse;
-import store.service.sales.dto.OrderResponseType;
+import store.service.sales.dto.ReOrderResponse;
+import store.service.sales.dto.ReOrderResponseType;
 
 public class SalesService {
 
@@ -22,100 +21,101 @@ public class SalesService {
         this.inventoryService = inventoryService;
     }
 
-    public OrderResponse order(final OrderRequest orderRequest) {
-        Product product = inventoryService.findProduct(orderRequest.productName());
-        int quantity = orderRequest.quantity();
-        LocalDateTime createdAt = orderRequest.createdAt();
-        Order order = createOrder(product, quantity, createdAt);
-        orders.add(order);
-        return toOrderResponse(getOrderNumber(), product, order);
-    }
-
-    public List<OrderResponse> reOrder() {
-        List<OrderResponse> orderResponses = new ArrayList<>();
-        for (int orderNumber = 0; orderNumber < orders.size(); orderNumber++) {
-            orderResponses.add(
-                    toOrderResponse(orderNumber, orders.get(orderNumber).product(), orders.get(orderNumber))
-            );
+    public List<ReOrderResponse> order(final List<OrderRequest> orderRequests) {
+        for (OrderRequest orderRequest : orderRequests) {
+            Product product = inventoryService.findProduct(orderRequest.productName());
+            int quantity = orderRequest.quantity();
+            LocalDateTime createdAt = orderRequest.createdAt();
+            Order order = createOrder(product, quantity, createdAt);
+            orders.add(order);
         }
-        return orderResponses;
+        return toReOrderResponses();
     }
 
-    public void addPromotionFree(final int orderNumber) {
+    public void reOrder(final List<ReOrderRequest> reOrderRequests) {
+        for (ReOrderRequest reOrderRequest : reOrderRequests) {
+            if (isWantFreePromotionProduct(reOrderRequest)) {
+                updateOrders(reOrderRequest);
+            }
+            if (isWantDecreaseNonPromotionProduct(reOrderRequest)) {
+                updateOrders(reOrderRequest);
+            }
+        }
+    }
+
+    private boolean isWantDecreaseNonPromotionProduct(final ReOrderRequest reOrderRequest) {
+        return reOrderRequest.reOrderResponseType().isPromotionStockShortage() && !reOrderRequest.yesOrNo();
+    }
+
+    private boolean isWantFreePromotionProduct(final ReOrderRequest reOrderRequest) {
+        return reOrderRequest.reOrderResponseType().isPromotionOrderQuantityShortage() && reOrderRequest.yesOrNo();
+    }
+
+    private void updateOrders(final ReOrderRequest reOrderRequest) {
+        Order order = orders.get(reOrderRequest.orderNumber());
+        Order newOrder = Order.reOrder(order, reOrderRequest.reOrderQuantity());
+        orders.set(reOrderRequest.orderNumber(), newOrder);
+    }
+
+    private List<ReOrderResponse> toReOrderResponses() {
+        List<ReOrderResponse> reOrderResponses = new ArrayList<>();
+        for (int orderNumber = 0; orderNumber < orders.size(); orderNumber++) {
+            Order order = orders.get(orderNumber);
+            if (order.isReOrderType()) {
+                reOrderResponses.add(toReOrderResponse(order, orderNumber));
+            }
+        }
+        return reOrderResponses;
+    }
+
+    private ReOrderResponse toReOrderResponse(final Order order, final int orderNumber) {
+        ReOrderResponseType reOrderResponseType = ReOrderResponseType.from(order.orderType());
+        if (reOrderResponseType.isPromotionStockShortage()) {
+            int reOrderQuantity = calculatePromotionStockShortageQuantity(order);
+            return new ReOrderResponse(orderNumber, reOrderResponseType, order.productName(), reOrderQuantity);
+        }
+        return new ReOrderResponse(orderNumber, reOrderResponseType, order.productName(), 1);
+    }
+
+    private int calculatePromotionStockShortageQuantity(final Order order) {
+        return order.quantity() -
+                inventoryService.calculatePromotionQuantity(order.product(), order.promotionCount());
+    }
+
+
+    private void addPromotionFree(final int orderNumber) {
         Order order = orders.get(orderNumber);
         orders.set(orderNumber, Order.reOrder(order, order.quantity() + 1));
     }
 
-    public void removeNormalProduct(final int orderNumber, final int removeQuantity) {
+    private void removeNormalProduct(final int orderNumber, final int removeQuantity) {
         Order order = orders.get(orderNumber);
         orders.set(orderNumber, Order.reOrder(order, order.quantity() - removeQuantity));
     }
 
-    public long applyMembershipDiscount(final List<OrderResponse> orderResponses) {
-        long totalAmount = 0L;
-        for (int orderNumber = 0; orderNumber < orders.size(); orderNumber++) {
-            Order order = orders.get(orderNumber);
-            OrderResponse orderResponse = orderResponses.get(orderNumber);
-            totalAmount += calculateNormalProductTotalAmount(order, orderResponse);
-        }
-        return totalAmount;
-    }
-
-    private long calculateNormalProductTotalAmount(final Order order, final OrderResponse orderResponse) {
-        if (order.hasNormalProductQuantity(
-                orderResponse.freeProductQuantity(), orderResponse.promotionProductQuantity())
-        ) {
-            return order.calculateNormalProductAmount(orderResponse.freeProductQuantity(),
-                    orderResponse.promotionProductQuantity());
-        }
-        return 0L;
-    }
-
-    private Order createOrder(final Product product, final int quantity, final LocalDateTime createdAt) {
-        validateOrderQuantity(product, quantity);
+    private Order createOrder(final Product product, final int orderQuantity, final LocalDateTime createdAt) {
+        validateOrderQuantity(product, orderQuantity);
         if (inventoryService.canReceivePromotion(product, createdAt)) {
-            return Order.promotion(product, quantity);
+            int promotionCount = inventoryService.calculatePromotionCount(product, orderQuantity);
+            return createPromotionTypeOrder(product, orderQuantity, promotionCount);
         }
-        return Order.normal(product, quantity);
+        return Order.normal(product, orderQuantity);
     }
 
-    private void validateOrderQuantity(final Product product, final int quantity) {
-        ProductStock productStock = inventoryService.findProductStock(product);
-        if (!productStock.isEnough(quantity)) {
+    private void validateOrderQuantity(final Product product, final int orderQuantity) {
+        if (!inventoryService.hasEnoughStock(product, orderQuantity)) {
             throw new IllegalArgumentException("재고 수량을 초과하여 구매할 수 없습니다.");
         }
     }
 
-    private OrderResponse toOrderResponse(final int orderNumber, final Product product, final Order order) {
-        if (order.isPromotionType()) {
-            int promotionCount = inventoryService.calculatePromotionCount(product, order.quantity());
-            int promotionProductCount = inventoryService.calculatePromotionProductCount(product, promotionCount);
-            PromotionProduct promotionProduct = inventoryService.findPromotionProduct(product);
-            ProductStock productStock = inventoryService.findProductStock(product);
-            if (promotionProduct.isShortageOrder(promotionCount, order.quantity())) {
-                return toPromotionOrderResponse(orderNumber, OrderResponseType.PROMOTION_N_SHORTAGE, order,
-                        promotionProductCount, promotionCount);
-            }
-            if (promotionProduct.isOverOrder(promotionCount, order.quantity())) {
-                return toPromotionOrderResponse(orderNumber, OrderResponseType.PROMOTION_STOCK_OVER, order,
-                        promotionProductCount, promotionCount);
-            }
-            return toPromotionOrderResponse(orderNumber, OrderResponseType.NORMAL, order, promotionProductCount,
-                    promotionCount);
+    private Order createPromotionTypeOrder(final Product product, final int orderQuantity, final int promotionCount) {
+        if (inventoryService.isPromotionStockShortage(product, orderQuantity)) {
+            return Order.promotionStockShortage(product, orderQuantity, promotionCount);
         }
-        return new OrderResponse(orderNumber, OrderResponseType.NORMAL, order.productName(), order.quantity(), 0, 0);
-    }
-
-    private int getOrderNumber() {
-        return orders.size() - 1;
-    }
-
-    private OrderResponse toPromotionOrderResponse(final int orderNumber, final OrderResponseType orderResponseType,
-                                                   final Order order, final int promotionProductCount,
-                                                   final int promotionCount
-    ) {
-        return new OrderResponse(orderNumber, orderResponseType, order.productName(),
-                order.quantity() - promotionProductCount, promotionProductCount, promotionCount);
+        if (inventoryService.isPromotionOrderQuantityShortage(product, orderQuantity)) {
+            return Order.promotionOrderQuantityShortage(product, orderQuantity, promotionCount);
+        }
+        return Order.promotion(product, orderQuantity, promotionCount);
     }
 
 }
