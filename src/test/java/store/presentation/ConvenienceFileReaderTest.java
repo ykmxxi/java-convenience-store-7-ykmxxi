@@ -19,4 +19,14 @@ class ConvenienceFileReaderTest {
         assertThat(productsLines).isNotEmpty();
     }
 
+    @DisplayName("promotions.md 파일의 모든 라인을 읽어온다.")
+    @Test
+    void 행사_파일_모든_라인_읽어오기() {
+        ConvenienceFileReader convenienceFileReader = new ConvenienceFileReader();
+
+        List<String> promotionsLines = convenienceFileReader.readPromotionsFile();
+
+        assertThat(promotionsLines).isNotEmpty();
+    }
+
 }
