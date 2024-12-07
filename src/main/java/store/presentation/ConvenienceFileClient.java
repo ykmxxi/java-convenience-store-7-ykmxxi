@@ -31,6 +31,7 @@ public class ConvenienceFileClient {
                     Integer.parseInt(tokens[1]), Integer.parseInt(tokens[2]), tokens[3]));
         }
         convenienceFileService.saveProducts(productSaveRequests);
+        convenienceFileService.saveProductsStock(productSaveRequests);
     }
 
     public void savePromotions() {
